@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Minat Pintar - Tes Minat Bakat SMP (V.0.9 Simple Sync)</title>
+  
+  <link rel="preconnect" href="https://cdn.tailwindcss.com">
+  <link rel="preconnect" href="https://unpkg.com">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    @media screen and (min-width: 1024px) {
+      body { zoom: 0.85; }
+    }
+    .fade-enter { opacity: 0; transition: opacity 0.3s ease-in; }
+    .fade-enter-active { opacity: 1; }
+    
+    /* Desain Mengkilat (Glassmorphism) */
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 1);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+    }
+    
+    .glass-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.6) 100%);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.8);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    }
+
+    .glass-sidebar {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .glossy-button {
+      background: linear-gradient(to bottom right, #0ea5e9, #4f46e5);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.4), 0 10px 15px -3px rgba(79, 70, 229, 0.3);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes pulse-glow-teal {
+      0%, 100% { filter: drop-shadow(0 0 5px rgba(20, 184, 166, 0.3)) brightness(1); }
+      50% { filter: drop-shadow(0 0 15px rgba(20, 184, 166, 0.7)) brightness(1.1); }
+    }
+    .logo-fx-dash {
+      animation: float 4s ease-in-out infinite, pulse-glow-teal 3s ease-in-out infinite;
+    }
+
+    #toast {
+        visibility: hidden;
+        min-width: 250px;
+        background-color: #334155;
+        color: #fff;
+        text-align: center;
+        border-radius: 12px;
+        padding: 16px;
+        position: fixed;
+        z-index: 100;
+        left: 50%;
+        bottom: 30px;
+        transform: translateX(-50%);
+        font-weight: bold;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    #toast.show {
+        visibility: visible;
+        animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    }
+    @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+    @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    .sidebar-scrollbar::-webkit-scrollbar { width: 4px; }
+    .sidebar-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    
+    .tab-fade { animation: tabFadeIn 0.4s ease-out; }
+    @keyframes tabFadeIn { 
+        from { opacity: 0; transform: translateY(15px); } 
+        to { opacity: 1; transform: translateY(0); } 
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans relative overflow-x-hidden">
+  
+  <!-- Efek Background Ambient -->
+  <div class="fixed top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/10 blur-[100px] pointer-events-none z-0"></div>
+  <div class="fixed bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-emerald-400/10 blur-[100px] pointer-events-none z-0"></div>
+
+  <!-- ==================== 1. HALAMAN LOGIN GURU BK ==================== -->
+  <div id="guru-login-view" class="hidden min-h-screen flex items-center justify-center p-4 sm:p-8 fade-enter-active relative z-10">
+    <div class="glass-panel rounded-[2rem] overflow-hidden max-w-5xl w-full flex flex-col md:flex-row min-h-[600px]">
+      
+      <div class="w-full md:w-5/12 bg-gradient-to-br from-teal-500 via-emerald-500 to-teal-600 p-8 sm:p-14 text-white flex flex-col relative overflow-hidden">
+        <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white opacity-10 blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 rounded-full bg-teal-300 opacity-20 blur-2xl"></div>
+        
+        <div class="relative z-10 flex flex-col items-start gap-3 mb-10">
+          <img src="https://i.ibb.co.com/nsFP5n0X/Chat-GPT-Image-14-Mei-2026-19-35-48.png" alt="Logo Minat Pintar" class="w-24 h-24 sm:w-48 sm:h-48 object-contain logo-fx-dash" fetchpriority="high" />
+          <span class="font-bold text-2xl sm:text-4xl tracking-tight mt-2 text-white drop-shadow-md">
+            Minat<span class="text-amber-300">Pintar</span>
+          </span>
+        </div>
+
+        <div class="relative z-10 mt-auto mb-auto">
+          <h1 class="text-2xl sm:text-4xl font-bold mb-4 sm:mb-6 leading-tight drop-shadow-sm">Portal Khusus<br />Guru BK.</h1>
+          <p class="text-teal-50 text-sm sm:text-lg leading-relaxed mb-8 opacity-90 drop-shadow-sm">
+            Akses dashboard manajemen tes minat bakat, bagikan tautan kepada siswa, dan rekap seluruh hasil evaluasi secara otomatis.
+          </p>
+        </div>
+      </div>
+
+      <div class="w-full md:w-7/12 p-6 sm:p-14 flex flex-col justify-center bg-white/50 relative overflow-y-auto">
+        <div class="max-w-md w-full mx-auto">
+          <div class="mb-8 sm:mb-10">
+            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50 border border-teal-200 text-teal-700 mb-4 shadow-sm">
+              <i data-lucide="shield-check" class="w-4 h-4"></i>
+              <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Akses Administrator</span>
+            </div>
+            <h2 class="text-2xl sm:text-3xl font-bold text-slate-800 mb-2 sm:mb-3">Selamat Datang 👋</h2>
+            <p class="text-sm sm:text-base text-slate-500">Silakan masukkan identitas dan NIP Anda untuk masuk ke sistem.</p>
+          </div>
+
+          <form id="guru-login-form" class="space-y-4 sm:space-y-5">
+            <div class="space-y-2">
+              <label class="text-xs sm:text-sm font-semibold text-slate-700 block">Nama Lengkap & Gelar</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <i data-lucide="user" class="h-4 w-4 sm:h-5 sm:w-5 text-slate-400"></i>
+                </div>
+                <input 
+                  type="text" 
+                  id="guru-nama"
+                  required
+                  class="block w-full pl-10 sm:pl-11 pr-4 py-3 sm:py-3.5 glass-card rounded-xl text-sm sm:text-base text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"
+                  placeholder="Contoh: Alfian, S.Pd"
+                />
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="text-xs sm:text-sm font-semibold text-slate-700 block">NIP (Nomor Induk Pegawai)</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <i data-lucide="lock" class="h-4 w-4 sm:h-5 sm:w-5 text-slate-400"></i>
+                </div>
+                <input 
+                  type="password" 
+                  id="guru-nip"
+                  required
+                  class="block w-full pl-10 sm:pl-11 pr-12 py-3 sm:py-3.5 glass-card rounded-xl text-sm sm:text-base text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 transition-all"
+                  placeholder="Masukkan NIP Anda"
+                />
+                <button type="button" onclick="window.togglePassword()" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-teal-600 transition-colors cursor-pointer z-10">
+                  <i data-lucide="eye" id="eye-icon" class="h-4 w-4 sm:h-5 sm:w-5"></i>
+                </button>
+              </div>
+            </div>
+
+            <button 
+              type="submit"
+              class="w-full flex items-center justify-center gap-2 glossy-button text-white font-semibold py-3.5 sm:py-4 px-8 rounded-xl transition-all duration-300 hover:-translate-y-0.5 mt-6 sm:mt-8 group text-sm sm:text-base"
+            >
+              Masuk Dashboard Guru
+              <i data-lucide="arrow-right" class="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform"></i>
+            </button>
+          </form>
+          
+          <div class="mt-8 sm:mt-10 text-center space-y-5">
+            <div class="pt-6 border-t border-slate-200/50">
+              <p class="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Aplikasi Minat Pintar V.0.9</p>
+              <p class="text-[10px] sm:text-xs text-slate-500 font-medium">Dikembangkan dan di Desain oleh <span class="font-bold text-slate-700">ALFIAN - GURU BIMBINGAN KONSELING</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==================== 2. PORTAL GURU (DASHBOARD) DENGAN SIDEBAR ==================== -->
+  <div id="guru-view" class="hidden h-screen flex w-full overflow-hidden relative z-10">
+    
+    <aside class="w-64 glass-sidebar text-slate-700 flex flex-col shrink-0 hidden lg:flex shadow-xl z-20">
+        <div class="h-20 flex items-center px-6 border-b border-slate-200/50">
+            <img src="https://i.ibb.co.com/nsFP5n0X/Chat-GPT-Image-14-Mei-2026-19-35-48.png" alt="Logo" class="w-10 h-10 object-contain mr-3 logo-fx-dash" />
+            <span class="font-bold text-xl text-slate-800 tracking-tight">
+              Minat<span class="text-teal-600">Pintar</span>
+            </span>
+        </div>
+        
+        <nav class="flex-1 py-6 px-4 space-y-2 overflow-y-auto sidebar-scrollbar">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4 px-2">Menu Navigasi BK</p>
+            
+            <button id="btn-section-beranda" onclick="window.switchSection('section-beranda')" class="w-full flex items-center gap-3 px-3 py-3 rounded-xl bg-teal-50 text-teal-700 border-l-4 border-teal-500 shadow-sm transition-colors group">
+                <i data-lucide="layout-dashboard" class="w-5 h-5 text-teal-500 group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-bold text-left">Beranda Dashboard</span>
+            </button>
+            <button id="btn-section-link" onclick="window.switchSection('section-link')" class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors group border-l-4 border-transparent">
+                <i data-lucide="link" class="w-5 h-5 text-blue-500 group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-semibold text-left">Daftar Link Tes</span>
+            </button>
+            <button id="btn-section-rekapan" onclick="window.switchSection('section-rekapan')" class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors group border-l-4 border-transparent">
+                <i data-lucide="database" class="w-5 h-5 text-emerald-500 group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-semibold text-left">Rekapan Analisis</span>
+            </button>
+            <button id="btn-section-peserta" onclick="window.switchSection('section-peserta')" class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors group border-l-4 border-transparent">
+                <i data-lucide="users" class="w-5 h-5 text-indigo-500 group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-semibold text-left">Peserta Tes</span>
+            </button>
+            <button id="btn-section-pengaturan" onclick="window.switchSection('section-pengaturan')" class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors group border-l-4 border-transparent">
+                <i data-lucide="pen-tool" class="w-5 h-5 text-amber-500 group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-semibold text-left">Pengaturan Dokumen</span>
+            </button>
+            <button id="btn-section-panduan" onclick="window.switchSection('section-panduan')" class="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-slate-800 transition-colors group border-l-4 border-transparent">
+                <i data-lucide="help-circle" class="w-5 h-5 text-purple-500 group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-semibold text-left">Panduan Penggunaan</span>
+            </button>
+        </nav>
+        
+        <div class="p-5 border-t border-slate-200/50 bg-white/50">
+            <div class="flex items-center gap-3 mb-5 px-1">
+                <div class="w-10 h-10 bg-gradient-to-br from-teal-400 to-emerald-500 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-md">
+                    BK
+                </div>
+                <div class="overflow-hidden">
+                    <p id="sidebar-guru-name" class="text-sm font-bold text-slate-800 truncate">Guru BK</p>
+                    <p class="text-[10px] font-bold tracking-widest uppercase text-teal-600">Administrator</p>
+                </div>
+            </div>
+            <button onclick="window.logoutGuru()" class="w-full flex items-center justify-center gap-2 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl text-xs font-bold transition-colors border border-rose-200">
+                <i data-lucide="log-out" class="w-4 h-4"></i> Keluar Sistem
+            </button>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <header class="h-16 sm:h-20 glass-panel border-b border-white flex items-center justify-between px-4 sm:px-6 shrink-0 z-10 shadow-sm rounded-none">
+            <div class="flex items-center gap-2 sm:gap-3 lg:hidden">
+                <img src="https://i.ibb.co.com/nsFP5n0X/Chat-GPT-Image-14-Mei-2026-19-35-48.png" alt="Logo" class="w-7 h-7 sm:w-8 sm:h-8" />
+                <span class="font-bold text-base sm:text-lg text-slate-800">Minat<span class="text-teal-600">Pintar</span></span>
+            </div>
+            
+            <div class="hidden lg:block flex-1"></div>
+
+            <div class="flex items-center gap-3 sm:gap-4">
+                <!-- Tombol Refresh Dinamis Tanpa Reload Halaman -->
+                <button onclick="window.refreshData()" class="flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-blue-50 border border-blue-200 text-blue-600 hover:bg-blue-100 transition-colors shadow-sm" title="Segarkan Data Peserta Tes">
+                    <i data-lucide="refresh-cw" id="refresh-icon" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i>
+                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider hidden sm:block">Refresh Data</span>
+                </button>
+
+                <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 shadow-sm">
+                    <div class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                    <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider">Sistem Online</span>
+                </div>
+                <button onclick="window.logoutGuru()" class="lg:hidden p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-full transition-colors">
+                    <i data-lucide="log-out" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                </button>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-10 custom-scrollbar scroll-smooth">
+          <div class="max-w-5xl mx-auto relative pb-10">
+            
+            <!-- SECTION 1: BERANDA -->
+            <section id="section-beranda" class="dashboard-section tab-fade">
+              <div class="bg-gradient-to-br from-teal-600 via-emerald-600 to-teal-700 rounded-[1.5rem] sm:rounded-[2rem] p-6 sm:p-10 text-white shadow-xl shadow-teal-500/20 relative overflow-hidden mb-8 sm:mb-10 border border-teal-400/50">
+                <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white opacity-10 blur-3xl"></div>
+                <div class="relative z-10 max-w-2xl">
+                  <h1 class="text-2xl sm:text-4xl font-bold mb-2 sm:mb-3 drop-shadow-md">Selamat Datang, <span id="guru-dashboard-name">Bapak/Ibu Guru</span> 👋</h1>
+                  <p class="text-teal-50 text-sm sm:text-lg leading-relaxed drop-shadow-sm">
+                    Sistem kini terhubung menggunakan jaringan internet simpel. Bagikan link tes ke siswa, lalu tekan tombol <b>Refresh Data</b> di atas untuk menyinkronkan tabel jawaban mereka ke layar Anda.
+                  </p>
+                </div>
+              </div>
+
+              <div class="mt-8">
+                <div class="flex justify-between items-end mb-4 sm:mb-6 border-b border-slate-200 pb-3 sm:pb-4">
+                  <div>
+                    <h2 class="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
+                      <i data-lucide="book-open" class="w-5 h-5 sm:w-6 sm:h-6 text-indigo-500"></i> Informasi & Artikel
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">Berita seputar pendidikan, karir, dan bimbingan konseling.</p>
+                  </div>
+                </div>
+                <div id="articles-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                  <!-- Diisi via JS -->
+                </div>
+              </div>
+            </section>
+
+            <!-- SECTION 2: DAFTAR LINK TES -->
+            <section id="section-link" class="dashboard-section hidden tab-fade">
+              <div class="flex justify-between items-end mb-4 sm:mb-6 border-b border-slate-200 pb-3 sm:pb-4">
+                <div>
+                  <h2 class="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
+                      <i data-lucide="link" class="w-5 h-5 sm:w-6 sm:h-6 text-blue-500"></i> Distribusi Link Tes
+                  </h2>
+                  <p class="text-xs sm:text-sm text-slate-500 mt-1">Salin link untuk dibagikan ke siswa, atau gunakan tombol <b>"Simulasi"</b>.</p>
+                </div>
+              </div>
+              <div id="admin-tests-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <!-- Diisi via JS -->
+              </div>
+            </section>
+
+            <!-- SECTION 3: REKAPAN EXCEL -->
+            <section id="section-rekapan" class="dashboard-section hidden tab-fade">
+              <div class="flex justify-between items-end mb-4 sm:mb-6 border-b border-slate-200 pb-3 sm:pb-4">
+                <div>
+                  <h2 class="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
+                      <i data-lucide="database" class="w-5 h-5 sm:w-6 sm:h-6 text-emerald-500"></i> Rekapan Hasil
+                  </h2>
+                  <p class="text-xs sm:text-sm text-slate-500 mt-1">Data ringkas siswa yang telah menyelesaikan tes. Tekan tombol <b>Refresh</b> jika hasil belum muncul.</p>
+                </div>
+              </div>
+
+              <div class="glass-panel rounded-[1.5rem] sm:rounded-3xl p-5 sm:p-8 relative overflow-hidden">
+                  <div class="absolute right-0 top-0 w-1.5 sm:w-2 h-full bg-emerald-500"></div>
+                  
+                  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+                      <div>
+                          <div class="inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-blue-50 text-blue-700 rounded-lg text-xs sm:text-sm font-bold border border-blue-200 mb-1 sm:mb-2 shadow-sm">
+                             <i data-lucide="users" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+                             Total Data Terkumpul: <span id="total-rekapan" class="text-lg sm:text-xl text-blue-800">0</span> Siswa
+                          </div>
+                      </div>
+                      <div class="flex flex-col sm:flex-row gap-2.5 sm:gap-3 w-full sm:w-auto shrink-0">
+                          <!-- Tombol Refresh Data Spesifik di Section Ini -->
+                          <button onclick="window.refreshData()" class="w-full sm:w-auto px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 transition-colors border border-blue-200 shadow-sm flex items-center justify-center gap-2 text-sm">
+                              <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh
+                          </button>
+                          <button onclick="window.clearRekapan()" class="w-full sm:w-auto px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl font-semibold text-rose-600 bg-white hover:bg-rose-50 transition-colors border border-rose-200 shadow-sm flex items-center justify-center gap-2 text-sm">
+                              <i data-lucide="trash-2" class="w-4 h-4"></i> Kosongkan
+                          </button>
+                          <button onclick="window.downloadRekapanExcel()" class="w-full sm:w-auto px-5 sm:px-8 py-2.5 sm:py-3 rounded-xl font-bold text-white glossy-button transition-colors flex items-center justify-center gap-2 group text-sm">
+                              <i data-lucide="file-spreadsheet" class="w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform"></i> Download Excel (.xls)
+                          </button>
+                      </div>
+                  </div>
+
+                  <div id="preview-rekapan-container" class="hidden mt-6 sm:mt-8 border border-slate-200 rounded-xl sm:rounded-2xl overflow-hidden shadow-sm bg-white/50">
+                      <div class="bg-slate-100/80 px-3 sm:px-4 py-2 sm:py-3 border-b border-slate-200 flex items-center gap-2">
+                          <i data-lucide="table" class="w-4 h-4 text-slate-500"></i>
+                          <span class="text-xs sm:text-sm font-bold text-slate-700">Pratinjau Data Terbaru</span>
+                      </div>
+                      <div class="overflow-x-auto overflow-y-auto max-h-[250px] sm:max-h-[350px] custom-scrollbar bg-white/50">
+                          <table class="w-full text-left text-xs sm:text-sm text-slate-600 whitespace-nowrap">
+                              <thead class="bg-slate-50 text-slate-700 sticky top-0 shadow-sm">
+                                  <tr>
+                                      <th class="p-3 sm:p-4 font-bold border-b border-slate-200">No</th>
+                                      <th class="p-3 sm:p-4 font-bold border-b border-slate-200">Waktu</th>
+                                      <th class="p-3 sm:p-4 font-bold border-b border-slate-200">Nama Siswa</th>
+                                      <th class="p-3 sm:p-4 font-bold border-b border-slate-200">NISN / Kelas</th>
+                                      <th class="p-3 sm:p-4 font-bold border-b border-slate-200">Jenis Tes</th>
+                                      <th class="p-3 sm:p-4 font-bold border-b border-slate-200">Skor</th>
+                                      <th class="p-3 sm:p-4 font-bold border-b border-slate-200">Rekomendasi Utama</th>
+                                      <th class="p-3 sm:p-4 font-bold border-b border-slate-200 w-1/4">Tindak Lanjut BK</th>
+                                  </tr>
+                              </thead>
+                              <tbody id="preview-rekapan-body" class="divide-y divide-slate-100">
+                                  <!-- Diisi via JS -->
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+              </div>
+            </section>
+
+            <!-- SECTION PESERTA TES DENGAN TAB -->
+            <section id="section-peserta" class="dashboard-section hidden tab-fade">
+              <div class="flex flex-col sm:flex-row justify-between sm:items-end gap-4 mb-4 sm:mb-6 border-b border-slate-200 pb-3 sm:pb-4">
+                <div>
+                  <h2 class="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
+                      <i data-lucide="users" class="w-5 h-5 sm:w-6 sm:h-6 text-indigo-500"></i> Peserta Tes (Live)
+                  </h2>
+                  <p class="text-xs sm:text-sm text-slate-500 mt-1">Pantau status pengerjaan dan detail jawaban siswa secara online.</p>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <!-- Tombol Refresh Data Spesifik di Section Ini -->
+                    <button onclick="window.refreshData()" class="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 rounded-xl font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 shadow-sm transition-colors flex items-center justify-center gap-2 text-sm">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i> Refresh
+                    </button>
+                    <button onclick="window.clearRekapan()" class="flex-1 sm:flex-none px-4 sm:px-5 py-2.5 rounded-xl font-semibold text-rose-600 bg-white hover:bg-rose-50 border border-rose-200 shadow-sm transition-colors flex items-center justify-center gap-2 text-sm">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i> Kosongkan
+                    </button>
+                </div>
+              </div>
+
+              <!-- Menu Tab -->
+              <div class="flex gap-1.5 sm:gap-2 p-1.5 bg-slate-200/50 rounded-xl mb-4 sm:mb-6 w-full sm:w-fit border border-slate-200 shadow-sm overflow-x-auto">
+                <button id="btn-tab-status" onclick="window.switchTabPeserta('status')" class="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-bold text-xs sm:text-sm bg-white text-indigo-600 shadow-sm transition-all border border-slate-100 whitespace-nowrap">
+                    Status Peserta
+                </button>
+                <button id="btn-tab-jawaban" onclick="window.switchTabPeserta('jawaban')" class="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-700 transition-all border border-transparent whitespace-nowrap">
+                    Jawaban Siswa
+                </button>
+              </div>
+
+              <div id="tab-status" class="block tab-fade">
+                 <div class="glass-panel rounded-xl sm:rounded-2xl overflow-hidden shadow-sm">
+                     <div class="overflow-x-auto">
+                         <table class="w-full text-left text-xs sm:text-sm text-slate-600 whitespace-nowrap">
+                             <thead class="bg-slate-50 text-slate-700 border-b border-slate-200">
+                                 <tr>
+                                     <th class="p-3 sm:p-4 font-bold w-10 sm:w-12 text-center">No</th>
+                                     <th class="p-3 sm:p-4 font-bold">Identitas Siswa</th>
+                                     <th class="p-3 sm:p-4 font-bold">Jenis Tes</th>
+                                     <th class="p-3 sm:p-4 font-bold">Waktu Pengumpulan</th>
+                                     <th class="p-3 sm:p-4 font-bold">Status</th>
+                                 </tr>
+                             </thead>
+                             <tbody id="status-peserta-body" class="divide-y divide-slate-100">
+                                 <!-- Diisi via JS -->
+                             </tbody>
+                         </table>
+                     </div>
+                 </div>
+              </div>
+
+              <div id="tab-jawaban" class="hidden tab-fade space-y-3 sm:space-y-4">
+                  <div id="jawaban-accordion-container" class="space-y-3 sm:space-y-4">
+                      <!-- Diisi via JS -->
+                  </div>
+              </div>
+            </section>
+
+            <!-- SECTION PENGATURAN TANDA TANGAN -->
+            <section id="section-pengaturan" class="dashboard-section hidden tab-fade">
+              <div class="flex justify-between items-end mb-4 sm:mb-6 border-b border-slate-200 pb-3 sm:pb-4">
+                <div>
+                  <h2 class="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
+                      <i data-lucide="settings" class="w-5 h-5 sm:w-6 sm:h-6 text-amber-500"></i> Pengaturan Tanda Tangan
+                  </h2>
+                  <p class="text-xs sm:text-sm text-slate-500 mt-1">Sesuaikan identitas Kepala Sekolah dan lokasi untuk Dokumen Laporan.</p>
+                </div>
+              </div>
+
+              <div class="glass-panel p-5 sm:p-8 rounded-[1.5rem] sm:rounded-3xl">
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-5 sm:mb-6">
+                      <div>
+                          <label class="text-[10px] sm:text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5 sm:mb-2">Tempat Ditetapkan</label>
+                          <div class="relative">
+                             <i data-lucide="map-pin" class="absolute left-3.5 top-3 w-4 h-4 text-slate-400"></i>
+                             <input type="text" id="xls-tempat" placeholder="Contoh: Jakarta" class="w-full pl-10 pr-4 py-2.5 glass-card rounded-xl text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all text-slate-800">
+                          </div>
+                      </div>
+                      <div>
+                          <label class="text-[10px] sm:text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5 sm:mb-2">Nama Kepala Sekolah</label>
+                          <div class="relative">
+                             <i data-lucide="user-check" class="absolute left-3.5 top-3 w-4 h-4 text-slate-400"></i>
+                             <input type="text" id="xls-kepsek-nama" placeholder="Nama Lengkap & Gelar" class="w-full pl-10 pr-4 py-2.5 glass-card rounded-xl text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all text-slate-800">
+                          </div>
+                      </div>
+                      <div>
+                          <label class="text-[10px] sm:text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1.5 sm:mb-2">NIP Kepala Sekolah</label>
+                          <div class="relative">
+                             <i data-lucide="credit-card" class="absolute left-3.5 top-3 w-4 h-4 text-slate-400"></i>
+                             <input type="text" id="xls-kepsek-nip" placeholder="Nomor Induk Pegawai" class="w-full pl-10 pr-4 py-2.5 glass-card rounded-xl text-sm outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all text-slate-800">
+                          </div>
+                      </div>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 pt-5 sm:pt-6 border-t border-slate-200/50">
+                      <div>
+                          <label class="text-[10px] sm:text-xs font-bold text-teal-600 uppercase tracking-wider block mb-1.5 sm:mb-2">Nama Guru BK (Auto)</label>
+                          <div class="relative opacity-80">
+                             <i data-lucide="user" class="absolute left-3.5 top-3 w-4 h-4 text-slate-500"></i>
+                             <input type="text" id="xls-guru-nama" readonly class="w-full pl-10 pr-4 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-700 font-semibold cursor-not-allowed">
+                          </div>
+                      </div>
+                      <div>
+                          <label class="text-[10px] sm:text-xs font-bold text-teal-600 uppercase tracking-wider block mb-1.5 sm:mb-2">NIP Guru BK (Auto)</label>
+                          <div class="relative opacity-80">
+                             <i data-lucide="lock" class="absolute left-3.5 top-3 w-4 h-4 text-slate-500"></i>
+                             <input type="text" id="xls-guru-nip" readonly class="w-full pl-10 pr-4 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-sm text-slate-700 font-semibold cursor-not-allowed">
+                          </div>
+                      </div>
+                  </div>
+              </div>
+            </section>
+
+            <!-- SECTION 5: PANDUAN PENGGUNAAN -->
+            <section id="section-panduan" class="dashboard-section hidden tab-fade">
+              <div class="flex justify-between items-end mb-4 sm:mb-6 border-b border-slate-200 pb-3 sm:pb-4">
+                <div>
+                  <h2 class="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
+                      <i data-lucide="help-circle" class="w-5 h-5 sm:w-6 sm:h-6 text-purple-500"></i> Panduan Penggunaan
+                  </h2>
+                  <p class="text-xs sm:text-sm text-slate-500 mt-1">Pelajari cara memaksimalkan fitur Sinkronisasi aplikasi Minat Pintar.</p>
+                </div>
+              </div>
+
+              <div class="space-y-4 sm:space-y-6">
+                <div class="glass-panel p-5 sm:p-6 rounded-[1.5rem] sm:rounded-3xl flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-amber-50 border border-amber-200 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 text-amber-500 shadow-sm">
+                        <i data-lucide="settings" class="w-6 h-6 sm:w-7 sm:h-7"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-800 mb-1.5 sm:mb-2">1. Melakukan Pengaturan Awal (Wajib)</h3>
+                        <p class="text-slate-600 text-xs sm:text-sm leading-relaxed mb-2 sm:mb-3">Sebelum mengunduh laporan atau menyebarkan link, atur identitas sekolah terlebih dahulu untuk tanda tangan di laporan Excel dan PDF.</p>
+                        <ul class="list-disc pl-4 sm:pl-5 text-xs sm:text-sm text-slate-500 space-y-1">
+                            <li>Pilih menu <b>Pengaturan Dokumen</b> di sidebar sebelah kiri.</li>
+                            <li>Masukkan <b>Tempat Ditetapkan</b>, <b>Nama & NIP Kepala Sekolah</b>.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-5 sm:p-6 rounded-[1.5rem] sm:rounded-3xl flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-50 border border-blue-200 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 text-blue-500 shadow-sm">
+                        <i data-lucide="share-2" class="w-6 h-6 sm:w-7 sm:h-7"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-800 mb-1.5 sm:mb-2">2. Membagikan Tautan (Link) Tes ke Siswa</h3>
+                        <p class="text-slate-600 text-xs sm:text-sm leading-relaxed mb-2 sm:mb-3">Siswa tidak perlu mengakses dashboard. Mereka hanya membuka link tes yang spesifik. <i>(Catatan: Untuk dapat membagikan link ke HP siswa di rumah, file aplikasi HTML ini perlu di-upload ke layanan Hosting/Cpanel sekolah terlebih dahulu).</i></p>
+                        <ul class="list-disc pl-4 sm:pl-5 text-xs sm:text-sm text-slate-500 space-y-1">
+                            <li>Buka menu <b>Daftar Link Tes</b>.</li>
+                            <li>Klik tombol <b class="text-slate-700 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded shadow-sm">Salin Link</b> pada jenis tes yang diinginkan.</li>
+                            <li>Kirim link tersebut ke Grup WhatsApp siswa.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-5 sm:p-6 rounded-[1.5rem] sm:rounded-3xl flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-50 border border-emerald-200 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 text-emerald-500 shadow-sm">
+                        <i data-lucide="refresh-cw" class="w-6 h-6 sm:w-7 sm:h-7"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-800 mb-1.5 sm:mb-2">3. Sinkronisasi Data Cepat (Tombol Refresh)</h3>
+                        <p class="text-slate-600 text-xs sm:text-sm leading-relaxed mb-2 sm:mb-3">Anda tidak perlu merefresh seluruh browser yang bisa membuat Anda logout. Cukup klik tombol <b>Refresh Data</b> di bagian kanan atas atau di dalam menu. Sistem akan otomatis menarik seluruh data jawaban siswa ke dalam memori aplikasi Anda.</p>
+                    </div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+          
+          <footer class="mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-slate-200/50 text-center max-w-5xl mx-auto z-10 relative">
+            <p class="text-[9px] sm:text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest">Aplikasi Minat Pintar V.0.9 (Simple Sync)</p>
+            <p class="text-[10px] sm:text-xs text-slate-500 font-medium">Dikembangkan dan di Desain oleh <span class="font-bold text-slate-700">ALFIAN - GURU BIMBINGAN KONSELING</span></p>
+          </footer>
+        </main>
+    </div>
+  </div>
+
+
+  <!-- ==================== 3. PORTAL SISWA (LOGIN FORM KHUSUS TES) ==================== -->
+  <div id="student-login-view" class="hidden min-h-screen flex items-center justify-center p-4 sm:p-8 fade-enter-active bg-slate-100 relative z-10">
+    <div class="glass-panel rounded-[2rem] shadow-2xl overflow-hidden max-w-4xl w-full flex flex-col md:flex-row relative">
+      
+      <button onclick="window.backToGuru()" class="absolute top-4 left-4 z-50 bg-white/20 hover:bg-white/40 backdrop-blur-md border border-white/30 text-white rounded-full p-2 transition-all shadow-sm" title="Kembali ke Portal Guru">
+         <i data-lucide="arrow-left" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+      </button>
+
+      <div class="w-full md:w-5/12 bg-gradient-to-br from-blue-600 to-indigo-600 p-8 sm:p-10 flex flex-col items-center justify-center text-white text-center relative overflow-hidden shadow-inner">
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        <div class="relative z-10 pt-4">
+            <img src="https://i.ibb.co.com/nsFP5n0X/Chat-GPT-Image-14-Mei-2026-19-35-48.png" alt="Logo" class="w-24 h-24 sm:w-32 sm:h-32 object-contain mx-auto mb-4 sm:mb-6 logo-fx-dash" fetchpriority="high" />
+            <h2 class="text-xl sm:text-2xl font-bold mb-1 sm:mb-2 drop-shadow-md">Portal Siswa</h2>
+            <p class="text-blue-100 text-xs sm:text-sm drop-shadow-sm">Sistem Evaluasi Minat Pintar</p>
+            <div class="mt-6 sm:mt-8 p-3 sm:p-4 bg-white/20 rounded-xl border border-white/30 backdrop-blur-md shadow-lg">
+                <p class="text-[10px] sm:text-xs text-blue-50 font-medium uppercase tracking-wider mb-1">Kamu akan mengerjakan:</p>
+                <p id="target-test-name" class="text-base sm:text-lg font-bold text-amber-300 drop-shadow-sm">Memuat Data Tes...</p>
+            </div>
+        </div>
+      </div>
+
+      <div class="w-full md:w-7/12 p-6 sm:p-12 bg-white/50 backdrop-blur-sm">
+        <div class="mb-6 sm:mb-8">
+          <h2 class="text-xl sm:text-2xl font-bold text-slate-800 mb-1.5 sm:mb-2">Isi Data Diri Dulu Yuk! ✍️</h2>
+          <p class="text-slate-500 text-xs sm:text-sm">Pastikan namamu dan kelas diisi dengan benar untuk dicetak di hasil tes.</p>
+        </div>
+
+        <form id="student-form" class="space-y-3 sm:space-y-4">
+          <div>
+            <label class="text-[10px] sm:text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1">Nama Lengkap</label>
+            <div class="relative">
+              <i data-lucide="user" class="absolute left-3.5 top-3 w-4 h-4 text-slate-400"></i>
+              <input type="text" id="stu-nama" required class="w-full pl-10 pr-4 py-2 sm:py-2.5 glass-card rounded-xl text-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none text-slate-800" placeholder="Contoh: Budi Santoso">
+            </div>
+          </div>
+          <div>
+            <label class="text-[10px] sm:text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1">NISN</label>
+            <div class="relative">
+              <i data-lucide="lock" class="absolute left-3.5 top-3 w-4 h-4 text-slate-400"></i>
+              <input type="number" id="stu-nisn" required class="w-full pl-10 pr-4 py-2 sm:py-2.5 glass-card rounded-xl text-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none text-slate-800" placeholder="Nomor Induk Siswa Nasional">
+            </div>
+          </div>
+          <div>
+            <label class="text-[10px] sm:text-xs font-bold text-slate-600 uppercase tracking-wider block mb-1">Kelas</label>
+            <div class="relative">
+              <i data-lucide="users" class="absolute left-3.5 top-3 w-4 h-4 text-slate-400"></i>
+              <input type="text" id="stu-kelas" required class="w-full pl-10 pr-4 py-2 sm:py-2.5 glass-card rounded-xl text-sm focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none text-slate-800" placeholder="Contoh: IX - A">
+            </div>
+          </div>
+          
+          <input type="hidden" id="stu-sekolah" value="Sekolah Menengah Pertama (SMP)">
+
+          <button type="submit" class="w-full mt-5 sm:mt-6 glossy-button text-white font-bold py-3 sm:py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 group text-sm sm:text-base">
+            Mulai Kerjakan Tes <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== 4. HALAMAN PENGERJAAN TES ==================== -->
+  <div id="test-view" class="hidden min-h-screen pb-10 fade-enter-active bg-slate-100 relative z-10">
+    <nav class="glass-panel border-b border-white sticky top-0 z-20 rounded-none">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+        <div class="flex items-center gap-3 sm:gap-4">
+          <img src="https://i.ibb.co.com/nsFP5n0X/Chat-GPT-Image-14-Mei-2026-19-35-48.png" alt="Logo" class="hidden sm:block w-8 h-8 sm:w-10 sm:h-10 object-contain logo-fx-dash" fetchpriority="high" />
+          <div class="w-px h-6 sm:h-8 bg-slate-200 hidden sm:block"></div>
+          <div class="flex items-center gap-2 sm:gap-3">
+            <div id="test-icon-container" class="p-1.5 sm:p-2 rounded-lg sm:rounded-xl text-white shadow-md bg-gradient-to-br from-blue-500 to-indigo-600 border border-blue-400/50">
+              <i id="test-icon" data-lucide="file-text" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+            </div>
+            <div>
+              <h2 id="test-title-header" class="font-bold text-slate-800 text-sm sm:text-lg leading-none">Judul Tes</h2>
+              <span id="test-progress-text" class="text-[10px] sm:text-xs text-slate-500 font-medium mt-0.5 sm:mt-1 inline-block">Soal 1 dari 34</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="flex items-center gap-1.5 sm:gap-2 bg-rose-50 text-rose-600 px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-xl font-bold border border-rose-200 shadow-sm">
+           <i data-lucide="clock" class="w-4 h-4 sm:w-5 sm:h-5 animate-pulse"></i>
+           <span id="test-timer" class="text-sm sm:text-lg tracking-wider">40:00</span>
+        </div>
+      </div>
+      <div class="w-full bg-slate-200 h-1 sm:h-1.5">
+        <div id="test-progress-bar" class="bg-gradient-to-r from-blue-400 to-indigo-500 h-1 sm:h-1.5 transition-all duration-300 shadow-[0_0_10px_rgba(79,70,229,0.5)]" style="width: 5%;"></div>
+      </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-2 sm:px-6 py-4 sm:py-8 grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 items-start min-h-[calc(100vh-100px)]">
+      <!-- Bagian Kiri: Area Soal -->
+      <div class="lg:col-span-3 flex flex-col h-full">
+        <div class="glass-panel rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-8 mb-6 sm:mb-8 relative overflow-hidden flex-grow shadow-sm">
+          <h3 id="question-text" class="text-lg sm:text-xl font-bold text-slate-800 leading-relaxed mb-6 sm:mb-8 relative z-10">Pertanyaan...</h3>
+          <div id="options-container" class="space-y-2.5 sm:space-y-3 relative z-10">
+            <!-- Options via JS -->
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between mt-auto pt-4 sm:pt-6 border-t border-slate-200 px-2 sm:px-0">
+          <button id="btn-prev" onclick="window.prevQuestion()" class="flex items-center gap-1 sm:gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-semibold text-slate-600 bg-white hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-slate-200 shadow-sm text-sm sm:text-base">
+            <i data-lucide="arrow-left" class="w-4 h-4 sm:w-5 sm:h-5"></i> <span class="hidden sm:inline">Sebelumnya</span><span class="sm:hidden">Kembali</span>
+          </button>
+          <button id="btn-next" onclick="window.nextQuestion()" class="flex items-center gap-1 sm:gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-semibold glossy-button text-white transition-colors text-sm sm:text-base">
+            <span class="hidden sm:inline">Selanjutnya</span><span class="sm:hidden">Lanjut</span> <i data-lucide="arrow-right" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+          </button>
+          <button id="btn-submit" onclick="window.submitTest()" class="hidden flex items-center gap-1.5 sm:gap-2 px-5 py-2 sm:px-8 sm:py-3 rounded-xl font-bold bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 transition-colors shadow-lg shadow-emerald-500/30 border border-emerald-400/50 text-sm sm:text-base">
+            Kumpulkan <span class="hidden sm:inline">Jawaban</span> <i data-lucide="check-circle" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Bagian Kanan: Navigasi Nomor Soal -->
+      <div class="lg:col-span-1 glass-panel rounded-[1.5rem] sm:rounded-[2rem] p-5 sm:p-6 shadow-sm sticky top-[80px] sm:top-[100px] max-h-[calc(100vh-100px)] sm:max-h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar hidden lg:block">
+         <h3 class="font-bold text-slate-800 border-b border-slate-200 pb-2.5 sm:pb-3 mb-3 sm:mb-4 flex items-center gap-2 text-sm sm:text-base">
+            <i data-lucide="layout-grid" class="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500"></i> Navigasi Soal
+         </h3>
+         <div id="question-navigator-grid" class="grid grid-cols-6 sm:grid-cols-5 gap-1.5 sm:gap-2">
+            <!-- Diisi via JS -->
+         </div>
+         <div class="mt-4 sm:mt-6 flex flex-col gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-slate-500 font-medium">
+             <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-teal-500 rounded-sm shadow-sm"></div> Sudah Dijawab</div>
+             <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-white border border-slate-300 rounded-sm"></div> Belum Dijawab</div>
+             <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-white border border-slate-300 ring-2 ring-blue-500 ring-offset-1 rounded-sm"></div> Posisi Saat Ini</div>
+         </div>
+         <button id="btn-submit-nav" onclick="window.submitTest()" class="w-full mt-4 sm:mt-6 py-2.5 sm:py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 transition-colors shadow-lg shadow-emerald-500/30 border border-emerald-400/50 hidden flex items-center justify-center gap-2 text-sm">
+             Kumpulkan <i data-lucide="check-circle" class="w-4 h-4"></i>
+         </button>
+      </div>
+
+      <!-- Navigasi Soal Khusus Mobile -->
+      <div class="lg:hidden w-full glass-panel rounded-[1.5rem] p-4 shadow-sm mt-2">
+          <h3 class="font-bold text-slate-800 border-b border-slate-200 pb-2 mb-3 flex items-center gap-2 text-sm">
+            <i data-lucide="layout-grid" class="w-4 h-4 text-indigo-500"></i> Navigasi Soal
+         </h3>
+         <div id="question-navigator-grid-mobile" class="grid grid-cols-7 gap-1.5">
+            <!-- Diisi via JS -->
+         </div>
+         <button id="btn-submit-nav-mobile" onclick="window.submitTest()" class="w-full mt-4 py-2.5 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 transition-colors shadow-sm border border-emerald-400/50 hidden flex items-center justify-center gap-2 text-sm">
+             Kumpulkan Jawaban <i data-lucide="check-circle" class="w-4 h-4"></i>
+         </button>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ==================== 5. HALAMAN HASIL SISWA (RESULT VIEW) ==================== -->
+  <div id="result-view" class="hidden min-h-screen bg-slate-100 py-6 sm:py-10 px-4 fade-enter-active relative z-10">
+      <div class="max-w-3xl mx-auto">
+          <div class="glass-panel rounded-3xl overflow-hidden mb-6">
+              <div class="bg-gradient-to-r from-emerald-500 to-teal-600 p-6 sm:p-8 text-center text-white relative">
+                  <div class="w-16 h-16 sm:w-20 sm:h-20 bg-white border-4 border-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg">
+                      <i data-lucide="check-circle-2" class="w-8 h-8 sm:w-10 sm:h-10 text-emerald-500"></i>
+                  </div>
+                  <h2 class="text-2xl sm:text-3xl font-black mb-1.5 sm:mb-2 drop-shadow-sm">Kerja Bagus, <span id="res-nama-siswa">Siswa</span>! 🎉</h2>
+                  <p class="text-emerald-50 text-xs sm:text-sm drop-shadow-sm">Jawabanmu sudah otomatis terkirim dan tersimpan di database Guru BK.</p>
+              </div>
+              
+              <div class="p-5 sm:p-8 bg-white/50">
+                  <div class="mb-5 sm:mb-6 flex justify-between items-center pb-4 border-b border-slate-200">
+                      <div>
+                          <p class="text-[10px] sm:text-xs text-slate-500 uppercase tracking-widest font-bold">Identitas</p>
+                          <p class="font-semibold text-slate-800 text-sm sm:text-base" id="res-identitas">NISN - KELAS</p>
+                      </div>
+                      <div class="text-right">
+                          <p class="text-[10px] sm:text-xs text-slate-500 uppercase tracking-widest font-bold">Skor Kecocokan</p>
+                          <p class="text-xl sm:text-2xl font-black text-teal-600" id="res-skor">0%</p>
+                      </div>
+                  </div>
+
+                  <div class="bg-slate-50/80 backdrop-blur-sm rounded-xl p-4 sm:p-5 border border-slate-200 mb-4 sm:mb-6 shadow-sm">
+                      <h3 class="font-bold text-slate-800 mb-2 flex items-center gap-2 text-sm sm:text-base"><i data-lucide="bar-chart" class="w-4 h-4 text-teal-600"></i> Kesimpulan Sementara:</h3>
+                      <p id="res-deskripsi" class="text-xs sm:text-sm text-slate-600 leading-relaxed">Deskripsi hasil tes...</p>
+                  </div>
+              </div>
+          </div>
+
+          <div class="glass-panel rounded-[1.5rem] sm:rounded-3xl p-5 sm:p-8 relative overflow-hidden text-center">
+              <h3 class="font-bold text-slate-800 mb-2 text-sm sm:text-base">Tahap Selanjutnya</h3>
+              <p class="text-[10px] sm:text-xs text-slate-500 mb-5 sm:mb-6">Guru BK akan meninjau jawaban Essay kamu secara manual untuk memberikan rekomendasi final.</p>
+              
+              <button onclick="window.backToStudentPortal()" class="w-full sm:w-auto py-3 sm:py-3.5 px-6 rounded-xl font-bold text-white glossy-button transition-all inline-flex justify-center items-center gap-2 group text-sm sm:text-base mx-auto">
+                  <i data-lucide="arrow-left" class="w-4 h-4 sm:w-5 sm:h-5 group-hover:-translate-x-1 transition-transform"></i> <span>Kembali ke Awal</span>
+              </button>
+          </div>
+      </div>
+  </div>
+
+  <div id="toast">Link berhasil disalin ke clipboard!</div>
+
+  <!-- SCRIPT LOGIKA UTAMA (LOCAL STORAGE SYNC ENGINE) -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+        
+        // Cek jika ada refresh saat ini di halaman admin
+        if(!document.getElementById('guru-view').classList.contains('hidden') && window.activeGuruNip) {
+            window.refreshData();
+        }
+    });
+
+    // Cross-tab synchronization listener (Simulasi Server Lokal)
+    // Jika tab lain (Siswa) merubah localStorage, tab Admin akan otomatis terupdate tanpa perlu reload.
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'minatPintarResults' && window.activeGuruNip && !document.getElementById('guru-view').classList.contains('hidden')) {
+            window.refreshData(true); // Update tabel tanpa memunculkan notifikasi agar mulus
+        }
+    });
+
+    const testsData = [
+      { id: 1, title: 'Tes Kepribadian', description: 'Kenali lebih dalam karakter, sifat asli, dan kebiasaanmu sehari-hari.', icon: 'brain', color: 'text-purple-600', bgLight: 'bg-purple-50', borderHover: 'hover:border-purple-300', time: '40 Menit' },
+      { id: 2, title: 'Tes Penjurusan', description: 'Cari tahu kelompok pelajaran atau ekskul mana yang paling cocok buatmu.', icon: 'compass', color: 'text-cyan-600', bgLight: 'bg-cyan-50', borderHover: 'hover:border-cyan-300', time: '40 Menit' },
+      { id: 3, title: 'Tes Kemampuan', description: 'Ukur kecepatan berpikir, logika dasar, dan hitung-hitungan ringan.', icon: 'zap', color: 'text-amber-600', bgLight: 'bg-amber-50', borderHover: 'hover:border-amber-300', time: '40 Menit' },
+      { id: 4, title: 'Tes Gaya Belajar', description: 'Ketahui cara belajar yang bikin kamu paling cepat paham materi sekolah.', icon: 'book-open', color: 'text-emerald-600', bgLight: 'bg-emerald-50', borderHover: 'hover:border-emerald-300', time: '40 Menit' }
+    ];
+
+    const allArticlesPool = [
+      { id: 1, title: 'Tren Jurusan Kuliah Paling Dicari di Era AI 2026', category: 'Karir & Kampus', date: '12 Mei 2026', readTime: '5 Min Baca', color: 'bg-indigo-100 text-indigo-700 border border-indigo-200', imageUrl: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=800', fullText: 'Perkembangan Artificial Intelligence (AI) yang masif di tahun 2026 telah mengubah peta karir global secara signifikan. Jurusan seperti Sains Data, Rekayasa AI, dan Keamanan Siber kini menjadi primadona baru yang paling banyak dicari oleh perusahaan teknologi raksasa maupun startup.\n\nNamun, tidak hanya jurusan IT murni yang diuntungkan. Jurusan multidisiplin seperti Bioinformatika (gabungan biologi, medis, dan teknologi) serta Etika Digital (gabungan hukum, filsafat, dan teknologi) juga mulai muncul sebagai bidang karir yang sangat menjanjikan karena teknologi membutuhkan aturan dan batas etika.\n\nBagi siswa yang sedang bersiap memilih jurusan kuliah, sangat disarankan untuk mempertimbangkan prospek jangka panjang dari intervensi teknologi ini. Mempersiapkan diri dengan keterampilan analitis dan pemecahan masalah (problem solving) yang kuat akan menjadi modal utama agar peran kalian di masa depan tidak mudah tergerus oleh otomatisasi.' },
+      { id: 2, title: 'Tips Efektif Mengatur Waktu Belajar Tanpa Merasa Terbebani', category: 'Gaya Belajar', date: '10 Mei 2026', readTime: '4 Min Baca', color: 'bg-teal-100 text-teal-700 border border-teal-200', imageUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=800', fullText: 'Banyak siswa merasa terbebani dengan tumpukan tugas dan jadwal ujian yang padat. Kunci utamanya bukan pada seberapa lama kamu belajar, melainkan seberapa cerdas kamu mengelola waktu yang ada. \n\nSalah satu metode yang paling populer dan terbukti ampuh adalah Teknik Pomodoro. Teknik ini membagi waktu belajarmu menjadi interval 25 menit kerja fokus yang diikuti oleh 5 menit istirahat. Dengan cara ini, otak tidak akan cepat merasa jenuh dan kamu bisa mempertahankan konsentrasi jauh lebih lama dibandingkan belajar maraton berjam-jam.\n\nSelain itu, mulailah membuat "To-Do List" di malam hari sebelum tidur. Tuliskan maksimal 3 prioritas utama yang harus diselesaikan keesokan harinya. Memiliki target harian yang jelas akan membuat kamu bangun dengan rasa memiliki tujuan yang kuat.' },
+      { id: 3, title: 'Mengenal Pentingnya Keterampilan "Soft Skills" di Dunia Kerja', category: 'Pengembangan Diri', date: '08 Mei 2026', readTime: '6 Min Baca', color: 'bg-amber-100 text-amber-700 border border-amber-200', imageUrl: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&q=80&w=800', fullText: 'Nilai akademik yang tinggi (Hard Skills) memang akan membawamu lolos ke tahap wawancara kerja. Namun, apa yang membuatmu dipertahankan dan dipromosikan di sebuah perusahaan adalah "Soft Skills".\n\nSoft skills meliputi kemampuan berkomunikasi dengan baik, kepemimpinan, kecerdasan emosional, kemampuan bekerja sama dalam tim, serta adaptabilitas. Dalam era di mana informasi bisa didapatkan secara gratis dari internet, kemampuan manusia untuk saling berkolaborasi menjadi aset yang paling berharga.\n\nMulailah asah soft skills ini sejak duduk di bangku sekolah dengan cara aktif mengikuti ekstrakurikuler, menjadi relawan (volunteer) di komunitas lokal, atau mengambil peran kepemimpinan saat tugas kelompok. Pengalaman ini jauh lebih berharga dari sekadar teori.' },
+      { id: 4, title: 'Cara Mengatasi Rasa Malas Saat Mengerjakan Tugas Sekolah', category: 'Produktivitas', date: '14 Mei 2026', readTime: '3 Min Baca', color: 'bg-rose-100 text-rose-700 border border-rose-200', imageUrl: 'https://images.unsplash.com/photo-1456406644174-8ddd4cd52a06?auto=format&fit=crop&q=80&w=800', fullText: 'Rasa malas adalah manusiawi, tetapi menuruti kemalasan adalah sebuah pilihan. Seringkali, rasa malas muncul bukan karena kita tidak mampu, melainkan karena tugas tersebut terlihat sangat besar dan menakutkan (overwhelming).\n\nCara terbaik untuk mengatasinya adalah dengan memecah tugas besar menjadi bagian-bagian sangat kecil. Misalnya, daripada berniat "Aku akan menyelesaikan makalah 10 halaman", ubahlah niatmu menjadi "Aku akan membuat judul dan daftar isinya dulu selama 10 menit". Terkadang, dorongan awal itulah yang paling sulit.\n\nJangan lupa ciptakan sistem penghargaan (Reward System) untuk dirimu sendiri. Janjikan pada diri sendiri bahwa kamu boleh bermain game atau menonton episode serial favoritmu SETELAH menyelesaikan satu bab kecil tugasmu.' },
+      { id: 5, title: 'Beasiswa Kuliah Luar Negeri yang Akan Buka Tahun Ini', category: 'Info Beasiswa', date: '15 Mei 2026', readTime: '7 Min Baca', color: 'bg-blue-100 text-blue-700 border border-blue-200', imageUrl: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&q=80&w=800', fullText: 'Bermimpi kuliah di luar negeri secara gratis? Tahun ini, berbagai program beasiswa bergengsi kembali dibuka untuk pelajar Indonesia. Beberapa di antaranya yang patut kalian pantau adalah LPDP, AAS (Australia Awards Scholarship), MEXT (Jepang), dan Chevening (Inggris).\n\nPersiapan meraih beasiswa tidak bisa dilakukan dalam semalam. Persyaratan mutlak yang sering menggagalkan pelamar adalah skor bahasa Inggris (IELTS/TOEFL). Jika kamu berada di kelas 10 atau 11, inilah waktu yang sangat tepat untuk mulai mengambil kursus dan mengasah kemampuan bahasamu.\n\nSelain itu, esai motivasi (Motivation Letter) juga menjadi penentu utama. Mulailah merangkai narasi tentang siapa dirimu, mengapa kamu pantas menerima beasiswa tersebut, dan apa kontribusi konkrit yang akan kamu berikan bagi lingkungan sekitarmu setelah lulus nanti.' },
+      { id: 6, title: 'Menjaga Kesehatan Mental di Tengah Tekanan Ujian Nasional', category: 'Kesehatan', date: '01 Mei 2026', readTime: '5 Min Baca', color: 'bg-emerald-100 text-emerald-700 border border-emerald-200', imageUrl: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&q=80&w=800', fullText: 'Bulan-bulan menjelang ujian seringkali dipenuhi dengan rasa cemas, stres, dan overthinking. Ingatlah bahwa kesehatan mental dan fisikmu adalah prioritas di atas segalanya. Tidak ada ujian yang lebih penting daripada kesejahteraan dirimu sendiri.\n\nKenali batasan dirimu. Jika merasa terlalu stres, jangan ragu untuk berhenti sejenak dan menjauh dari meja belajar. Berolahraga ringan selama 20 menit sehari terbukti secara ilmiah mampu menurunkan hormon kortisol (pemicu stres) dan meningkatkan endorfin.\n\nJangan menyimpan beban pikiran sendirian. Bicaralah dengan orang tua, teman terdekat, atau konselor sekolah jika kamu merasa tekanan akademis sudah di luar kendali. Kamu tidak sendirian dalam menghadapi fase ini.' }
+    ];
+
+    // BANK SOAL SMP - 34 SOAL PER TES (30 PG + 4 Essay)
+    const questionPools = {
+      1: [ // Kepribadian
+        { q: "Aku suka memulai obrolan dengan teman baru di sekolah.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku merasa gugup kalau disuruh guru maju ke depan kelas secara mendadak.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Meja belajarku dan buku catatanku selalu rapi dan bersih.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku mudah memaafkan teman yang tidak sengaja berbuat salah padaku.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku suka membayangkan hal-hal seru yang belum pernah terjadi.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku lebih suka bekerja kelompok daripada mengerjakan tugas sendirian.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku gampang sedih atau baper (bawa perasaan) kalau dikritik teman.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku selalu mengerjakan PR tepat waktu, tidak pernah ditunda.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku suka membantu teman yang kesulitan memahami pelajaran di kelas.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku suka mencoba hal baru, seperti lewat jalan yang berbeda saat pulang sekolah.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku merasa nyaman berada di keramaian atau saat acara sekolah yang ramai.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku sering mengecek ulang tugasku berkali-kali karena takut ada yang salah.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku sangat peduli dengan perasaan temanku saat dia sedang terlihat murung.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku suka mencari tahu cara kerja barang-barang di sekitarku (seperti mainan atau jam dinding).", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku lebih suka diam dan mendengarkan saat teman-teman sedang berdebat seru.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku tenang dan tidak mudah panik walaupun ada ujian dadakan.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku selalu merencanakan kegiatanku untuk hari libur dari jauh-jauh hari.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku mudah akrab dan tidak canggung ngobrol dengan guru-guru di sekolah.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku suka menonton film fiksi fantasi atau cerita pahlawan super.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku merasa lelah kalau terlalu lama bermain di luar rumah bersama teman-teman.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku suka mengatur jadwalku di buku agenda.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku merasa bersalah jika tidak menepati janji sekecil apapun.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku lebih suka bekerja dalam suasana yang sepi dan tenang.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku suka mengamati perilaku dan kebiasaan orang lain.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku merasa mudah lelah bila banyak tugas menumpuk sekaligus.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku selalu memastikan pakaianku rapi sebelum berangkat ke sekolah.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku mudah beradaptasi di tempat yang benar-benar baru bagiku.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku merasa cemas jika memikirkan masa depanku nanti.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku lebih suka memendam perasaan saat sedang marah atau kesal.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { q: "Aku selalu merasa bersemangat saat hari Senin tiba.", opts: ["Sangat Setuju", "Setuju", "Ragu-ragu", "Tidak Setuju", "Sangat Tidak Setuju"] },
+        { type: 'essay', q: "[ESSAY 1] Tuliskan satu cita-cita atau mimpimu di masa depan beserta alasan mengapa kamu menginginkannya!" },
+        { type: 'essay', q: "[ESSAY 2] Hal apa yang paling membuatmu merasa bangga pada dirimu sendiri?" },
+        { type: 'essay', q: "[ESSAY 3] Sebutkan 3 sifat yang paling sering digunakan teman-temanmu untuk menggambarkan dirimu!" },
+        { type: 'essay', q: "[ESSAY 4] Jika kamu sedang sedih atau banyak pikiran, apa hal pertama yang kamu lakukan untuk mengembalikan mood-mu?" }
+      ],
+      2: [ // Penjurusan
+        { q: "Belajar tentang anatomi organ tubuh manusia dan hewan di pelajaran IPA.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Menulis puisi, pantun, atau membuat cerita pendek (cerpen) di waktu luang.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Membongkar dan merakit kembali mainan rusak atau barang elektronik di rumah.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Menggambar, melukis pemandangan, atau membuat kerajinan tangan dari barang bekas.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Melakukan percobaan mencampur zat dan cairan kimia dasar di ruang Lab sekolah.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Mendengarkan cerita sejarah pahlawan nasional dan kerajaan Nusantara.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Menjadi bendahara kelas, mengelola uang kas, atau mencatat uang jajan sendiri.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Mengedit video pendek untuk tugas sekolah atau sekadar hobi membuat konten.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Berpidato di depan banyak orang, mengikuti lomba debat, atau menjadi MC acara.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Mengamati langit, bintang, bulan, dan belajar tentang misteri tata surya.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Merawat hewan peliharaan (kucing/burung) atau rajin menyiram tanaman di rumah.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Menjadi tempat curhat teman yang sedang punya masalah karena aku pendengar yang baik.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Mengikuti kegiatan ekstrakurikuler Pramuka, Paskibra, atau PMR yang butuh disiplin.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Berjualan makanan ringan atau barang kecil-kecilan ke teman-teman di sekolah.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Bermain alat musik, rajin berlatih menyanyi, atau sekadar mendengarkan lagu.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Memecahkan soal hitung-hitungan Matematika yang penuh dengan rumus menantang.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Belajar bahasa asing selain bahasa Indonesia (contoh: Bahasa Inggris, Jepang, Arab).", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Membuat desain poster yang menarik atau menghias mading kelas agar bagus.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Memimpin teman-teman sebagai ketua kelas, ketua OSIS, atau ketua kelompok tugas.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Berolahraga hingga berkeringat seperti main basket, voli, futsal, atau senam di lapangan.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Membaca artikel tentang berita politik atau hukum yang sedang viral.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Belajar merancang bangunan, tata letak kota, atau menggambar denah rumah.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Bermain peran (teater) atau tampil dalam pentas seni drama sekolah.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Menganalisis pertumbuhan ekonomi, bisnis, atau harga saham perusahaan.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Membuat resep masakan baru atau hobi memasak di dapur saat akhir pekan.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Mempelajari sejarah negara-negara di dunia dan peradaban kuno.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Menjadi relawan di kegiatan sosial, panti asuhan, atau bakti sosial.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Mempelajari bahasa pemrograman komputer (coding) seperti HTML atau Python.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Menulis lirik lagu, naskah sandiwara, atau skenario film pendek.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { q: "Membedah dan memperbaiki komponen mesin motor, sepeda, atau mobil.", opts: ["Sangat Tertarik", "Tertarik", "Biasa Saja", "Tidak Tertarik", "Sangat Tidak Tertarik"] },
+        { type: 'essay', q: "[ESSAY 1] Jika kamu bisa memilih satu pekerjaan atau profesi di masa depan, kamu ingin menjadi apa? Mengapa?" },
+        { type: 'essay', q: "[ESSAY 2] Sebutkan satu tokoh pahlawan, artis, atau ilmuwan yang menjadi panutanmu dan sebutkan alasannya!" },
+        { type: 'essay', q: "[ESSAY 3] Jika kamu diberikan modal uang yang cukup besar secara cuma-cuma, bisnis atau karya apa yang ingin kamu bangun?" },
+        { type: 'essay', q: "[ESSAY 4] Mata pelajaran apa yang nilainya selalu tinggi di rapormu dan kamu merasa tidak pernah bosan mempelajarinya?" }
+      ],
+      3: [ // Kemampuan
+        { q: "Jika harga 2 buku tulis adalah Rp 10.000, maka berapakah harga untuk 5 buku tulis?", opts: ["Rp 20.000", "Rp 25.000", "Rp 30.000", "Rp 35.000"] },
+        { q: "Tentukan lanjutan dari deret angka berikut: 3, 6, 9, 12, ...", opts: ["13", "14", "15", "16"] }, 
+        { q: "Apa persamaan kata (sinonim) dari kata 'PINTAR'?", opts: ["Rajin", "Cerdas", "Berani", "Kuat"] }, 
+        { q: "Apa lawan kata (antonim) dari kata 'MANDIRI'?", opts: ["Bergantung", "Sendiri", "Hebat", "Tegar"] }, 
+        { q: "Hitunglah hasil dari operasi hitung berikut: (15 - 5) x 2 = ...", opts: ["10", "15", "20", "25"] }, 
+        { q: "Lengkapi hubungan berikut! Siang hari itu Terang, maka Malam hari itu ...", opts: ["Bulan", "Gelap", "Bintang", "Tidur"] }, 
+        { q: "Hewan apakah di bawah ini yang bernapas menggunakan insang?", opts: ["Kucing", "Burung", "Ayam", "Ikan"] }, 
+        { q: "Di manakah letak ibu kota provinsi Jawa Barat?", opts: ["Jakarta", "Surabaya", "Bandung", "Semarang"] }, 
+        { q: "Jika hari ini adalah hari Selasa, maka lusa (dua hari lagi) adalah hari...", opts: ["Rabu", "Kamis", "Jumat", "Sabtu"] }, 
+        { q: "Pencuri itu berlari sangat 'Cepat'. Apa lawan kata (antonim) dari 'Cepat'?", opts: ["Gesit", "Tangkas", "Lambat", "Melompat"] }, 
+        { q: "Berapakah hasil dari 1/2 (setengah) dari angka 50?", opts: ["20", "25", "30", "35"] }, 
+        { q: "Ada berapa jumlah bulan dalam 1 (satu) tahun penuh?", opts: ["10 Bulan", "11 Bulan", "12 Bulan", "13 Bulan"] }, 
+        { q: "Hitunglah hasil pembagian berikut: 30 dibagi 5 adalah...", opts: ["4", "5", "6", "7"] }, 
+        { q: "Benda langit apakah yang setia mengelilingi bumi kita setiap hari?", opts: ["Matahari", "Bintang", "Bulan", "Mars"] }, 
+        { q: "Berapakah hasil dari 4 kuadrat (4 x 4)?", opts: ["8", "12", "16", "20"] }, 
+        { q: "Alat medis yang digunakan dokter untuk mengukur suhu tubuh manusia disebut...", opts: ["Barometer", "Termometer", "Anemometer", "Spidometer"] }, 
+        { q: "Kendaraan beroda dua yang bergerak jika dikayuh oleh tenaga manusia disebut...", opts: ["Mobil", "Sepeda", "Motor", "Becak"] }, 
+        { q: "Sikap pahlawan itu sangat 'BERANI'. Lawan kata dari berani adalah...", opts: ["Kuat", "Tangguh", "Penakut", "Hebat"] }, 
+        { q: "Hitunglah hasil dari: (50 + 10) dibagi 3 = ...", opts: ["10", "20", "30", "40"] }, 
+        { q: "Tempat khusus untuk pesawat terbang melakukan lepas landas dan mendarat disebut...", opts: ["Terminal", "Pelabuhan", "Bandara", "Stasiun"] },
+        { q: "Jika 1 kg telur harganya Rp 24.000, berapakah harga 2,5 kg telur?", opts: ["Rp 48.000", "Rp 50.000", "Rp 60.000", "Rp 72.000"] },
+        { q: "Lanjutkan deret angka berikut ini: 1, 4, 9, 16, 25, ...", opts: ["30", "32", "36", "40"] },
+        { q: "Apa antonim (lawan kata) dari kata 'KASAR'?", opts: ["Keras", "Kaku", "Halus", "Tajam"] },
+        { q: "Ibu kota dari negara Australia adalah...", opts: ["Sydney", "Melbourne", "Canberra", "Perth"] },
+        { q: "Hitunglah hasil dari operasi ini: (100 : 4) x 2 = ...", opts: ["25", "50", "75", "100"] },
+        { q: "Kuda : Rumput = Harimau : ...", opts: ["Hutan", "Daging", "Taring", "Berlari"] },
+        { q: "Berapakah hasil dari 7 kuadrat (7 x 7)?", opts: ["14", "21", "49", "77"] },
+        { q: "Apa nama planet terbesar di tata surya kita?", opts: ["Bumi", "Mars", "Saturnus", "Jupiter"] },
+        { q: "Apa sinonim (persamaan kata) dari kata 'TANGGUH'?", opts: ["Kuat", "Rapuh", "Jujur", "Pintar"] },
+        { q: "Jika nilai X = 5 dan Y = 3, berapakah hasil dari (X + Y) x 2?", opts: ["15", "16", "20", "25"] },
+        { type: 'essay', q: "[ESSAY 1] Ceritakan secara singkat pengalamanmu saat berhasil memecahkan soal atau masalah yang menurutmu sangat sulit!" },
+        { type: 'essay', q: "[ESSAY 2] Jelaskan dengan singkat cara atau langkahmu dalam menyelesaikan soal perkalian angka yang besar!" },
+        { type: 'essay', q: "[ESSAY 3] Ceritakan sebuah permainan logika atau teka-teki yang pernah kamu mainkan dan mengapa kamu menyukainya!" },
+        { type: 'essay', q: "[ESSAY 4] Menurutmu, apakah pelajaran matematika itu penting untuk kehidupan sehari-hari? Berikan alasanmu!" }
+      ],
+      4: [ // Gaya Belajar
+        { q: "Aku lebih paham materi pelajaran jika aku mencatat ulang tulisan guru dari papan tulis ke bukuku.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Saat sedang belajar atau mengerjakan PR di rumah, aku suka sambil mendengarkan musik.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Aku mudah pegal, gelisah, atau bosan kalau disuruh duduk diam terlalu lama di kelas.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Aku lebih mengerti pelajaran dengan membaca buku LKS sendiri daripada hanya didongengi guru.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Saat aku mencoba menghafal sejarah atau rumus, aku suka membacanya sambil bersuara/komat-kamit.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Aku jauh lebih suka pelajaran olahraga atau praktik percobaan langsung di Laboratorium.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Buku catatanku penuh dengan coretan stabilo warna-warni di bagian kalimat yang penting.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Anehnya, aku lebih mudah menghafal lirik lagu yang baru kudengar daripada menghafal teks bacaan.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Saat aku membaca buku pelajaran tebal, telunjukku suka ikut menunjuk kata-katanya agar fokus.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Kalau bingung cara memainkan mainan/barang baru, aku lebih suka baca buku petunjuknya daripada nanya orang.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Kalau aku tidak mengerti suatu pelajaran, aku akan langsung bertanya kepada guru atau berdiskusi dengan teman.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Tanganku suka iseng mengetuk-ngetuk meja atau memutar-mutar pulpen saat sedang berpikir keras menjawab soal ujian.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Saat guru bercerita tentang sejarah, aku bisa membayangkan wajah pahlawan atau peta perangnya dengan jelas di otakku.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Jika suasana kelas berisik banyak teman yang ngobrol, aku sangat kesulitan untuk fokus membaca buku.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Aku lebih cepat mengerti cara merakit sesuatu jika aku langsung mencoba mempraktikkannya dengan tanganku sendiri.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Saat guru sedang menerangkan di depan kelas, aku sangat suka memperhatikan ekspresi wajah dan gerakan tangannya.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Meski pelajaran minggu lalu sudah lupa, tapi aku masih ingat cerita lucu pengalaman pribadi yang diceritakan guruku.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Saat bel istirahat berbunyi, aku lebih memilih berjalan-jalan ke kantin atau lapangan daripada diam duduk di kelas.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Aku sangat menyukai buku ensiklopedia atau komik pelajaran yang dipenuhi dengan gambar-gambar yang menarik.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Aku suka meniru logat suara atau cara berbicara tokoh kartun/artis terkenal untuk bercanda dengan temanku.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Aku mengingat sesuatu lebih baik jika aku menulisnya berulang-ulang di kertas.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Aku lebih suka membaca komik dengan banyak gambar daripada mendengarkan orang bercerita.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Aku sering berbicara dengan menggerakkan tangan (menggunakan gestur) saat menjelaskan sesuatu.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Saat sedang mencoba menghafal untuk ujian, aku suka berjalan mondar-mandir di kamarku.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Aku sangat sensitif terhadap suara berisik, sekecil apapun, saat sedang mencoba fokus belajar.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Aku lebih cepat paham jika pelajaran dijelaskan menggunakan banyak grafik, tabel, atau diagram.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Aku cepat mengenali suara atau nada bicara seseorang meskipun aku belum melihat wajahnya.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Aku mudah merasa bosan dan mengantuk jika hanya menonton video pembelajaran yang durasinya panjang.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Aku lebih suka menghabiskan waktu dengan melakukan aktivitas fisik seperti merakit puzzle atau lego.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { q: "Aku sering kali tanpa sadar bergumam pada diri sendiri saat sedang asyik membaca buku.", opts: ["Sering Sekali", "Kadang-kadang", "Jarang", "Tidak Pernah"] },
+        { type: 'essay', q: "[ESSAY 1] Menurutmu, cara mengajar atau kondisi belajar seperti apa yang membuatmu paling mudah dan cepat dalam memahami pelajaran?" },
+        { type: 'essay', q: "[ESSAY 2] Pukul berapa biasanya kamu merasa paling fokus untuk belajar (pagi/siang/malam)? Jelaskan alasannya!" },
+        { type: 'essay', q: "[ESSAY 3] Apakah kamu memiliki tempat favorit khusus untuk belajar di rumah? Jelaskan seperti apa suasananya!" },
+        { type: 'essay', q: "[ESSAY 4] Jika kamu harus presentasi di depan kelas besok, apa saja persiapan yang kamu lakukan agar tampil maksimal?" }
+      ]
+    };
+
+    const urlParams = new URLSearchParams(window.location.search);
+    let activeTestId = urlParams.get('test') ? parseInt(urlParams.get('test')) : null;
+
+    let testQuestions = [];
+    let currentQuestionIdx = 0;
+    let userAnswers = {};
+    let timerInterval = null;
+    let timeRemaining = 40 * 60; // 40 Menit
+
+    const guruLoginView = document.getElementById('guru-login-view');
+    const guruView = document.getElementById('guru-view');
+    const studentLoginView = document.getElementById('student-login-view');
+    const testView = document.getElementById('test-view');
+    const resultView = document.getElementById('result-view');
+
+    if (activeTestId) {
+        guruLoginView.classList.add('hidden');
+        guruView.classList.add('hidden');
+        studentLoginView.classList.remove('hidden');
+        
+        const testTarget = testsData.find(t => t.id === activeTestId);
+        if(testTarget) {
+            document.getElementById('target-test-name').textContent = testTarget.title;
+        } else {
+            alert("Link tes tidak valid!");
+        }
+    } else {
+        guruLoginView.classList.remove('hidden');
+        studentLoginView.classList.add('hidden');
+        guruView.classList.add('hidden');
+    }
+
+    // FUNGSI REFRESH DATA SIMPEL (TIDAK RELOAD HALAMAN)
+    window.refreshData = function(silent = false) {
+        const icon = document.getElementById('refresh-icon');
+        if(icon && !silent) icon.classList.add('animate-spin');
+
+        // Tarik data dari memori browser yang bertindak sebagai "database" 
+        // Data ini otomatis terisi saat ada siswa yang menekan submit
+        const latestData = JSON.parse(localStorage.getItem('minatPintarResults')) || [];
+        updateRekapanCount(latestData);
+
+        if(!silent) {
+            const toast = document.getElementById("toast");
+            toast.textContent = "Data Berhasil Diperbarui secara Online!";
+            toast.className = "show";
+            setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+
+            setTimeout(() => {
+                if(icon) icon.classList.remove('animate-spin');
+            }, 600);
+        }
+    }
+
+    window.switchSection = function(targetId) {
+        const sections = ['section-beranda', 'section-link', 'section-rekapan', 'section-pengaturan', 'section-panduan', 'section-peserta'];
+        
+        sections.forEach(id => {
+            const sectionEl = document.getElementById(id);
+            if (sectionEl) sectionEl.classList.add('hidden');
+            
+            const btnEl = document.getElementById('btn-' + id);
+            if (btnEl) {
+                btnEl.classList.remove('bg-teal-50', 'text-teal-700', 'border-teal-500');
+                btnEl.classList.add('text-slate-500', 'border-transparent');
+            }
+        });
+
+        const targetSection = document.getElementById(targetId);
+        if (targetSection) targetSection.classList.remove('hidden');
+
+        const activeBtn = document.getElementById('btn-' + targetId);
+        if (activeBtn) {
+            activeBtn.classList.remove('text-slate-500', 'border-transparent');
+            activeBtn.classList.add('bg-teal-50', 'text-teal-700', 'border-teal-500');
+        }
+
+        if (targetId === 'section-peserta') {
+            window.switchTabPeserta('status'); 
+        }
+    }
+
+    window.switchTabPeserta = function(tabName) {
+        const tabStatus = document.getElementById('tab-status');
+        const tabJawaban = document.getElementById('tab-jawaban');
+        const btnStatus = document.getElementById('btn-tab-status');
+        const btnJawaban = document.getElementById('btn-tab-jawaban');
+
+        if(tabName === 'status') {
+            tabStatus.classList.remove('hidden');
+            tabStatus.classList.add('block', 'tab-fade');
+            tabJawaban.classList.remove('block', 'tab-fade');
+            tabJawaban.classList.add('hidden');
+
+            btnStatus.className = "flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-bold text-xs sm:text-sm bg-white text-indigo-600 shadow-sm transition-all border border-slate-100 whitespace-nowrap";
+            btnJawaban.className = "flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-700 transition-all border border-transparent whitespace-nowrap";
+        } else {
+            tabJawaban.classList.remove('hidden');
+            tabJawaban.classList.add('block', 'tab-fade');
+            tabStatus.classList.remove('block', 'tab-fade');
+            tabStatus.classList.add('hidden');
+
+            btnJawaban.className = "flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-bold text-xs sm:text-sm bg-white text-indigo-600 shadow-sm transition-all border border-slate-100 whitespace-nowrap";
+            btnStatus.className = "flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-bold text-xs sm:text-sm text-slate-500 hover:text-slate-700 transition-all border border-transparent whitespace-nowrap";
+        }
+    }
+
+    window.togglePassword = function() {
+        const nipInput = document.getElementById('guru-nip');
+        const eyeIcon = document.getElementById('eye-icon');
+        
+        if (nipInput.type === 'password') {
+            nipInput.type = 'text';
+            if(lucide) eyeIcon.setAttribute('data-lucide', 'eye-off');
+        } else {
+            nipInput.type = 'password';
+            if(lucide) eyeIcon.setAttribute('data-lucide', 'eye');
+        }
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    document.getElementById('guru-login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const namaGuru = document.getElementById('guru-nama').value.trim();
+      const nipGuru = document.getElementById('guru-nip').value.trim();
+
+      if (!nipGuru) {
+          alert("Gagal Masuk! Anda wajib memasukkan NIP.");
+          return;
+      }
+
+      window.activeGuruName = namaGuru;
+      window.activeGuruNip = nipGuru;
+
+      document.getElementById('xls-guru-nama').value = namaGuru;
+      document.getElementById('xls-guru-nip').value = nipGuru;
+
+      document.getElementById('guru-dashboard-name').textContent = namaGuru;
+      document.getElementById('sidebar-guru-name').textContent = namaGuru;
+
+      guruLoginView.classList.add('hidden');
+      guruView.classList.remove('hidden');
+      window.scrollTo(0, 0);
+
+      window.switchSection('section-beranda');
+      renderAdminDashboard();
+      
+      // Ambil data yang tersimpan saat login menggunakan simple sync
+      window.refreshData(true);
+      renderRandomArticles();
+    });
+
+    window.logoutGuru = function() {
+        window.activeGuruName = null;
+        window.activeGuruNip = null;
+        document.getElementById('guru-nama').value = '';
+        document.getElementById('guru-nip').value = '';
+        
+        guruView.classList.add('hidden');
+        guruLoginView.classList.remove('hidden');
+        window.scrollTo(0, 0);
+    }
+
+    function renderAdminDashboard() {
+        const grid = document.getElementById('admin-tests-grid');
+        let baseUrl = window.location.origin + window.location.pathname;
+        if(baseUrl.includes('index.html') === false && baseUrl.endsWith('/') === false) {
+           baseUrl += '/';
+        }
+
+        grid.innerHTML = testsData.map(test => `
+            <div class="glass-panel rounded-2xl p-4 sm:p-5 transition-all duration-300 group hover:shadow-lg flex flex-col h-full hover:-translate-y-1 border border-white">
+              <div class="flex items-start gap-3 sm:gap-4">
+                <div class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center border border-white shadow-sm bg-gradient-to-br from-white to-slate-50 ${test.color}">
+                  <i data-lucide="${test.icon}" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                </div>
+                <div class="flex-1">
+                  <h3 class="text-base sm:text-lg font-bold text-slate-800 mb-1">${test.title}</h3>
+                  <p class="text-slate-500 text-xs sm:text-sm mb-4 leading-relaxed line-clamp-2">${test.description}</p>
+                </div>
+              </div>
+              <div class="mt-auto pt-3 border-t border-slate-200/50 flex flex-col sm:flex-row gap-2">
+                <button onclick="window.copyLink('${baseUrl}?test=${test.id}')" class="flex-1 py-2 sm:py-2.5 rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors flex items-center justify-center gap-1.5 border border-slate-200 text-xs sm:text-sm">
+                    <i data-lucide="link" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> Salin Link
+                </button>
+                <button onclick="window.simulateStudentView(${test.id})" class="flex-1 py-2 sm:py-2.5 rounded-lg font-bold text-white glossy-button hover:opacity-90 shadow-md shadow-blue-500/30 transition-all flex items-center justify-center gap-1.5 text-xs sm:text-sm">
+                    <i data-lucide="play-circle" class="w-3.5 h-3.5 sm:w-4 sm:h-4"></i> Simulasi
+                </button>
+              </div>
+            </div>
+        `).join('');
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    window.copyLink = function(link) {
+        const tempInput = document.createElement("input");
+        tempInput.value = link;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+
+        const toast = document.getElementById("toast");
+        toast.textContent = "Link berhasil disalin ke clipboard!";
+        toast.className = "show";
+        setTimeout(function(){ toast.className = toast.className.replace("show", ""); }, 3000);
+    }
+
+    function renderRandomArticles() {
+      const grid = document.getElementById('articles-grid');
+      if (!grid) return;
+      
+      const shuffled = [...allArticlesPool].sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, 3);
+
+      grid.innerHTML = selected.map(article => `
+        <div onclick="window.bukaArtikel(${article.id})" class="glass-panel rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer flex flex-col h-full transform hover:-translate-y-1">
+          <div class="h-48 overflow-hidden relative border-b border-slate-100">
+            <div class="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors z-10"></div>
+            <img src="${article.imageUrl}" alt="${article.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+            <div class="absolute top-4 left-4 z-20">
+              <span class="px-3 py-1 rounded-full text-xs font-bold ${article.color} backdrop-blur-md bg-white/90 shadow-sm">
+                ${article.category}
+              </span>
+            </div>
+            <div class="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-md p-2 rounded-full text-indigo-600 shadow-sm border border-white">
+              <i data-lucide="external-link" class="w-4 h-4"></i>
+            </div>
+          </div>
+
+          <div class="p-5 flex flex-col flex-grow">
+            <h3 class="text-lg font-bold text-slate-800 mb-3 group-hover:text-indigo-600 transition-colors line-clamp-2">
+              ${article.title}
+            </h3>
+            
+            <div class="mt-auto flex items-center justify-between text-xs text-slate-500 pt-4 border-t border-slate-100">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="calendar" class="w-3.5 h-3.5"></i> ${article.date}
+              </div>
+              <div class="flex items-center gap-1.5 font-medium">
+                <i data-lucide="clock" class="w-3.5 h-3.5"></i> ${article.readTime}
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    window.bukaArtikel = function(id) {
+      const article = allArticlesPool.find(a => a.id === id);
+      if(!article) return;
+
+      const articleHTML = `
+        <!DOCTYPE html>
+        <html lang="id">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>${article.title} - Minat Pintar</title>
+          <script src="https://cdn.tailwindcss.com"><\/script>
+        </head>
+        <body class="bg-slate-100 text-slate-800 font-sans p-4 sm:p-8 md:p-12">
+          <div class="max-w-3xl mx-auto mb-6">
+            <button onclick="window.close()" class="flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-medium bg-white px-4 py-2 rounded-xl shadow-sm border border-slate-200 w-fit">
+              ← Tutup Tab Ini
+            </button>
+          </div>
+          <article class="max-w-3xl mx-auto bg-white rounded-[2rem] shadow-xl border border-white overflow-hidden">
+            <div class="h-64 sm:h-96 w-full relative">
+              <img src="${article.imageUrl}" alt="${article.title}" class="w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent"></div>
+              <div class="absolute bottom-0 left-0 p-6 sm:p-10 w-full">
+                <span class="px-3 py-1 rounded-full text-xs font-bold ${article.color} shadow-sm mb-4 inline-block bg-white/90 backdrop-blur-sm">
+                  ${article.category}
+                </span>
+                <h1 class="text-2xl sm:text-4xl font-bold text-white leading-tight mb-3 drop-shadow-md">${article.title}</h1>
+                <div class="flex items-center gap-4 text-slate-200 text-sm font-medium drop-shadow-sm">
+                  <span>🗓 ${article.date}</span>
+                  <span>⏱ ${article.readTime}</span>
+                </div>
+              </div>
+            </div>
+            <div class="p-6 sm:p-10 text-lg leading-relaxed text-slate-600">
+              ${article.fullText.split('\\n\\n').map(p => `<p class="mb-6">${p}</p>`).join('')}
+              <div class="mt-12 pt-8 border-t border-slate-100 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-200 flex items-center justify-center font-bold">MP</div>
+                  <div>
+                    <p class="text-sm font-bold text-slate-800">Tim Minat Pintar</p>
+                    <p class="text-xs text-slate-500">Editor Artikel</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </body>
+        </html>
+      `;
+
+      const newWindow = window.open('', '_blank');
+      newWindow.document.write(articleHTML);
+      newWindow.document.close();
+    };
+
+    window.toggleAccordion = function(idx) {
+        const content = document.getElementById('acc-content-' + idx);
+        const icon = document.getElementById('acc-icon-' + idx);
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            icon.classList.add('rotate-180');
+        } else {
+            content.classList.add('hidden');
+            icon.classList.remove('rotate-180');
+        }
+    }
+
+    function renderStatusPeserta(results) {
+        const tbody = document.getElementById('status-peserta-body');
+        
+        if (results.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-slate-500">Belum ada peserta yang menyelesaikan tes.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = results.map((row, index) => `
+            <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100 last:border-0">
+                <td class="p-3 sm:p-4 font-bold text-slate-500 text-center w-10 sm:w-12">${index + 1}</td>
+                <td class="p-3 sm:p-4">
+                    <p class="font-bold text-slate-800 uppercase">${row.nama}</p>
+                    <p class="text-[10px] sm:text-xs text-slate-500 mt-0.5">${row.nisn} - Kelas ${row.kelas}</p>
+                </td>
+                <td class="p-3 sm:p-4">
+                    <span class="px-2 py-1 bg-teal-50 border border-teal-200 text-teal-700 rounded text-[10px] sm:text-xs font-bold whitespace-nowrap">${row.jenisTes}</span>
+                </td>
+                <td class="p-3 sm:p-4 text-[10px] sm:text-xs text-slate-500">${row.waktu}</td>
+                <td class="p-3 sm:p-4">
+                    <span class="inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] sm:text-xs font-bold border border-emerald-200">
+                        <i data-lucide="check-circle-2" class="w-3 h-3 sm:w-3.5 sm:h-3.5"></i> Selesai
+                    </span>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function renderJawabanSiswa(results) {
+        const container = document.getElementById('jawaban-accordion-container');
+        
+        if (results.length === 0) {
+            container.innerHTML = `<div class="glass-panel p-8 rounded-2xl text-center text-slate-500 shadow-sm border border-slate-200">Belum ada data jawaban siswa yang tersimpan.</div>`;
+            return;
+        }
+
+        container.innerHTML = results.map((row, index) => `
+            <div class="bg-white border border-slate-200 rounded-xl sm:rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                <button onclick="window.toggleAccordion(${index})" class="w-full flex justify-between items-center p-4 sm:p-5 bg-white hover:bg-slate-50 transition-colors focus:outline-none text-left">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-base sm:text-lg">${row.nama} <span class="text-xs sm:text-sm font-normal text-slate-500">(${row.kelas})</span></h3>
+                        <p class="text-[10px] sm:text-xs text-indigo-600 mt-1 font-semibold">${row.jenisTes} &bull; <span class="text-slate-400 font-normal">Waktu: ${row.waktu}</span></p>
+                    </div>
+                    <div class="w-6 h-6 sm:w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                        <i data-lucide="chevron-down" id="acc-icon-${index}" class="w-4 h-4 text-slate-500 transition-transform duration-300"></i>
+                    </div>
+                </button>
+                <div id="acc-content-${index}" class="hidden px-4 sm:px-5 pb-4 sm:pb-5 pt-2 border-t border-slate-100 bg-slate-50/50">
+                    <div class="space-y-3 sm:space-y-4 mt-2 sm:mt-4">
+                        ${row.detailedAnswers ? row.detailedAnswers.map((da, i) => `
+                            <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
+                                <p class="text-xs sm:text-sm text-slate-600 mb-1.5 sm:mb-2"><span class="font-bold text-slate-800 bg-slate-100 px-1.5 sm:px-2 py-0.5 rounded mr-1">Q${i+1}.</span> ${da.question}</p>
+                                <p class="text-xs sm:text-sm font-bold text-teal-600 bg-teal-50 p-2 rounded-lg border border-teal-100"><span class="text-teal-700/60 font-normal mr-1">Jawaban:</span> <span class="whitespace-pre-wrap">${da.answer}</span></p>
+                            </div>
+                        `).join('') : '<p class="text-slate-500 text-xs sm:text-sm italic">Detail jawaban tiap soal belum tersedia untuk data lama ini.</p>'}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateRekapanCount(results) {
+        const countEl = document.getElementById('total-rekapan');
+        if(countEl) countEl.textContent = results.length;
+
+        const previewContainer = document.getElementById('preview-rekapan-container');
+        const previewBody = document.getElementById('preview-rekapan-body');
+
+        if (results.length > 0) {
+            previewContainer.classList.remove('hidden');
+            previewBody.innerHTML = results.map((row, index) => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="p-3 sm:p-4 font-bold text-slate-500">${index + 1}</td>
+                    <td class="p-3 sm:p-4 whitespace-nowrap text-xs text-slate-500">${row.waktu}</td>
+                    <td class="p-3 sm:p-4 font-bold text-slate-800 uppercase">${row.nama}</td>
+                    <td class="p-3 sm:p-4"><span class="font-semibold text-slate-700">${row.nisn}</span><br><span class="text-[10px] sm:text-xs text-slate-500">Kelas: ${row.kelas}</span></td>
+                    <td class="p-3 sm:p-4"><span class="px-2 py-1 bg-teal-50 border border-teal-200 text-teal-700 rounded text-[10px] sm:text-xs font-bold whitespace-nowrap">${row.jenisTes}</span></td>
+                    <td class="p-3 sm:p-4 font-black text-emerald-600">${row.skor}</td>
+                    <td class="p-3 sm:p-4 text-xs font-bold text-blue-600 whitespace-normal min-w-[150px]">${row.rekomendasi || '-'}</td>
+                    <td class="p-3 sm:p-4 text-xs leading-relaxed text-slate-600 whitespace-normal min-w-[250px]"><ul class="list-disc pl-4 space-y-1">${row.tindakLanjut || '-'}</ul></td>
+                </tr>
+            `).join('');
+        } else {
+            previewContainer.classList.add('hidden');
+        }
+
+        renderStatusPeserta(results);
+        renderJawabanSiswa(results);
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    window.clearRekapan = function() {
+        if(confirm("Apakah Anda yakin ingin menghapus semua rekapan siswa dari perangkat ini? (Tindakan ini tidak dapat dibatalkan)")) {
+            localStorage.removeItem('minatPintarResults');
+            updateRekapanCount([]);
+            alert("Data rekapan berhasil dihapus.");
+        }
+    }
+
+    window.downloadRekapanExcel = function() {
+        let data = JSON.parse(localStorage.getItem('minatPintarResults')) || [];
+
+        if(data.length === 0) {
+            alert("Belum ada data siswa yang masuk ke dalam rekapan.");
+            return;
+        }
+
+        const tempat = document.getElementById('xls-tempat').value.trim() || '.......................';
+        const namaKepsek = document.getElementById('xls-kepsek-nama').value.trim() || '.......................';
+        const nipKepsek = document.getElementById('xls-kepsek-nip').value.trim() || '.......................';
+        const namaGuruBK = document.getElementById('xls-guru-nama').value.trim() || '.......................';
+        const nipGuruBK = document.getElementById('xls-guru-nip').value.trim() || '.......................';
+        const tanggalOtomatis = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        let table = `<html xmlns:x="urn:schemas-microsoft-com:office:excel">
+        <head>
+            <meta charset="utf-8">
+            <style>
+                td, th { vertical-align: middle; }
+            </style>
+        </head>
+        <body>
+        <table style="width:100%;">
+            <tr>
+                <th colspan="10" style="text-align: center; vertical-align: middle; height: 140px;">
+                    <img src="https://i.ibb.co.com/nsFP5n0X/Chat-GPT-Image-14-Mei-2026-19-35-48.png" width="75" height="75" alt="Logo" /><br>
+                    <span style="font-size: 18px; font-weight: bold; font-family: Arial, sans-serif;">LAPORAN REKAPAN HASIL TES MINAT BAKAT SISWA</span><br>
+                    <span style="font-size: 12px; font-weight: normal; font-family: Arial, sans-serif;">Diunduh pada: ${new Date().toLocaleString('id-ID')}</span>
+                </th>
+            </tr>
+            <tr><td colspan="10"></td></tr>
+        </table>
+        <table border="1" style="font-family: Arial, sans-serif; font-size: 12px;">
+        <tr>
+          <th style="background-color: #0f766e; color: white; padding: 10px; font-weight: bold;">No</th>
+          <th style="background-color: #0f766e; color: white; padding: 10px; font-weight: bold;">Waktu Selesai</th>
+          <th style="background-color: #0f766e; color: white; padding: 10px; font-weight: bold;">Nama Siswa</th>
+          <th style="background-color: #0f766e; color: white; padding: 10px; font-weight: bold;">NISN</th>
+          <th style="background-color: #0f766e; color: white; padding: 10px; font-weight: bold;">Kelas</th>
+          <th style="background-color: #0f766e; color: white; padding: 10px; font-weight: bold;">Jenis Tes</th>
+          <th style="background-color: #0f766e; color: white; padding: 10px; font-weight: bold;">Skor Kecocokan</th>
+          <th style="background-color: #0f766e; color: white; padding: 10px; font-weight: bold;">Rekomendasi Utama</th>
+          <th style="background-color: #0f766e; color: white; padding: 10px; font-weight: bold;">Penilaian Hasil Tes (Analisis & Perbaikan)</th>
+        </tr>`;
+
+        data.forEach((row, index) => {
+           table += `<tr>
+             <td style="padding: 5px; text-align: center;">${index + 1}</td>
+             <td style="padding: 5px;">${row.waktu}</td>
+             <td style="padding: 5px; text-transform: uppercase; font-weight: bold;">${row.nama}</td>
+             <td style="padding: 5px; mso-number-format:'\\@'">${row.nisn}</td>
+             <td style="padding: 5px; text-align: center;">${row.kelas}</td>
+             <td style="padding: 5px; text-align: center;">${row.jenisTes}</td>
+             <td style="padding: 5px; text-align: center; color: #059669; font-weight: bold;">${row.skor}</td>
+             <td style="padding: 5px; font-weight: bold; color: #1d4ed8;">${row.rekomendasi || '-'}</td>
+             <td style="padding: 5px; vertical-align: top;">
+                <div style="margin-bottom: 8px;"><strong>Penjelasan Hasil:</strong><br>${row.deskripsi || row.hasil || '-'}</div>
+                <div><strong>Saran/Perbaikan ke Depannya:</strong><br><ul style="margin-top: 2px; margin-bottom: 0; padding-left: 15px;">${row.saranPerbaikan || '-'}</ul></div>
+             </td>
+           </tr>`;
+        });
+        
+        table += `</table>
+        <br><br>
+        <table style="width:100%; font-family: Arial, sans-serif; font-size: 12px; border: none;">
+            <tr>
+                <td colspan="5" style="border: none;"></td>
+                <td colspan="4" style="border: none; text-align: center;">
+                    Ditetapkan di: ${tempat}<br>
+                    Pada tanggal: ${tanggalOtomatis}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" style="border: none; text-align: center;"><br>Mengetahui,<br>Kepala Sekolah</td>
+                <td colspan="1" style="border: none;"></td>
+                <td colspan="4" style="border: none; text-align: center;"><br><br>Guru Bimbingan Konseling</td>
+            </tr>
+            <tr>
+                <td colspan="4" style="border: none; height: 60px;"></td>
+                <td colspan="1" style="border: none;"></td>
+                <td colspan="4" style="border: none; height: 60px;"></td>
+            </tr>
+            <tr>
+                <td colspan="4" style="border: none; text-align: center; font-weight: bold; text-transform: uppercase;"><u>${namaKepsek}</u><br><span style="font-weight: normal;">NIP. ${nipKepsek}</span></td>
+                <td colspan="1" style="border: none;"></td>
+                <td colspan="4" style="border: none; text-align: center; font-weight: bold; text-transform: uppercase;"><u>${namaGuruBK}</u><br><span style="font-weight: normal;">NIP. ${nipGuruBK}</span></td>
+            </tr>
+        </table>
+        </body></html>`;
+
+        const blob = new Blob([table], { type: 'application/vnd.ms-excel' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Rekapan_Tes_${namaGuruBK.replace(/\s+/g, '_')}.xls`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
+    window.simulateStudentView = function(id) {
+        activeTestId = id;
+        guruView.classList.add('hidden');
+        studentLoginView.classList.remove('hidden');
+        window.scrollTo(0, 0);
+
+        const testTarget = testsData.find(t => t.id === id);
+        document.getElementById('target-test-name').textContent = testTarget.title;
+        
+        if (window.history.pushState) {
+            try {
+                const newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?test=' + id;
+                window.history.pushState({path:newurl}, '', newurl);
+            } catch (error) {
+                console.warn("history.pushState diblokir di environment pratinjau ini.");
+            }
+        }
+    }
+
+    window.backToGuru = function() {
+        studentLoginView.classList.add('hidden');
+        resultView.classList.add('hidden');
+        guruView.classList.remove('hidden');
+        window.scrollTo(0, 0);
+        
+        window.switchSection('section-link');
+
+        if (window.history.pushState) {
+            try {
+                const newurl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                window.history.pushState({path:newurl}, '', newurl);
+            } catch (error) {
+                console.warn("history.pushState diblokir di environment pratinjau ini.");
+            }
+        }
+    }
+
+    window.backToStudentPortal = function() {
+        resultView.classList.add('hidden');
+        studentLoginView.classList.remove('hidden');
+        window.scrollTo(0, 0);
+        document.getElementById('student-form').reset();
+    }
+
+    // --- FUNGSI TIMER TES ---
+    function startTestTimer() {
+        clearInterval(timerInterval);
+        timeRemaining = 40 * 60; // 40 menit
+        updateTimerUI();
+        
+        timerInterval = setInterval(() => {
+            timeRemaining--;
+            updateTimerUI();
+            
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                alert("Waktu habis! Jawabanmu otomatis dikumpulkan oleh sistem.");
+                window.submitTest();
+            }
+        }, 1000);
+    }
+
+    function updateTimerUI() {
+        const el = document.getElementById('test-timer');
+        if(!el) return;
+        const m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+        const s = (timeRemaining % 60).toString().padStart(2, '0');
+        el.textContent = `${m}:${s}`;
+    }
+
+    // --- FUNGSI SISWA (LOGIN & TEST) ---
+    document.getElementById('student-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const nama = document.getElementById('stu-nama').value.trim();
+      const nisn = document.getElementById('stu-nisn').value.trim();
+      const kelas = document.getElementById('stu-kelas').value.trim();
+
+      if(nama && nisn && kelas) {
+        const pool = questionPools[activeTestId];
+        testQuestions = [...pool]; // Ambil SEMUA 34 Pertanyaan (30 PG + 4 Essay)
+        userAnswers = {};
+        currentQuestionIdx = 0;
+
+        studentLoginView.classList.add('hidden');
+        testView.classList.remove('hidden');
+        window.scrollTo(0, 0);
+        
+        startTestUI();
+        startTestTimer(); // Memulai hitung mundur
+      }
+    });
+
+    function startTestUI() {
+      const testInfo = testsData.find(t => t.id === activeTestId);
+      
+      document.getElementById('test-title-header').textContent = testInfo.title;
+      if(document.getElementById('test-icon') && testInfo) {
+          document.getElementById('test-icon').setAttribute('data-lucide', testInfo.icon);
+      }
+      document.getElementById('test-icon-container').className = `p-1.5 sm:p-2 rounded-lg sm:rounded-xl text-white shadow-md bg-gradient-to-br from-blue-500 to-indigo-600 border border-blue-400/50`;
+      
+      if(typeof lucide !== 'undefined') lucide.createIcons();
+      renderCurrentQuestion();
+    }
+
+    window.jumpToQuestion = function(idx) {
+        currentQuestionIdx = idx;
+        renderCurrentQuestion();
+    }
+
+    function renderQuestionNavigator() {
+        const gridDesktop = document.getElementById('question-navigator-grid');
+        const gridMobile = document.getElementById('question-navigator-grid-mobile');
+        
+        let allAnswered = true;
+        
+        const renderGrid = () => testQuestions.map((_, idx) => {
+            const isAnswered = userAnswers[idx] !== undefined && userAnswers[idx] !== '';
+            const isCurrent = currentQuestionIdx === idx;
+            
+            if (!isAnswered) allAnswered = false;
+
+            let btnClass = "w-full aspect-square rounded-lg font-bold text-xs sm:text-xs transition-all flex items-center justify-center ";
+            
+            if (isCurrent) {
+                btnClass += "ring-2 ring-blue-500 ring-offset-1 ";
+            }
+
+            if (isAnswered) {
+                btnClass += "bg-teal-500 text-white border border-transparent shadow-sm hover:bg-teal-600";
+            } else {
+                btnClass += "bg-white text-slate-600 border border-slate-300 hover:bg-slate-50";
+            }
+
+            return `<button onclick="window.jumpToQuestion(${idx})" class="${btnClass}">${idx + 1}</button>`;
+        }).join('');
+
+        const gridHTML = renderGrid();
+
+        if (gridDesktop) gridDesktop.innerHTML = gridHTML;
+        if (gridMobile) gridMobile.innerHTML = gridHTML;
+
+        const btnSubmitNav = document.getElementById('btn-submit-nav');
+        const btnSubmitNavMobile = document.getElementById('btn-submit-nav-mobile');
+        
+        if (currentQuestionIdx === testQuestions.length - 1 || allAnswered) {
+            if(btnSubmitNav) btnSubmitNav.classList.remove('hidden');
+            if(btnSubmitNavMobile) btnSubmitNavMobile.classList.remove('hidden');
+        } else {
+            if(btnSubmitNav) btnSubmitNav.classList.add('hidden');
+            if(btnSubmitNavMobile) btnSubmitNavMobile.classList.add('hidden');
+        }
+        
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    window.saveEssayAnswer = function(idx, val) {
+        if(val.trim() === '') {
+            delete userAnswers[idx];
+        } else {
+            userAnswers[idx] = val;
+        }
+        updateNavigationButtons();
+        renderQuestionNavigator();
+    }
+
+    function updateNavigationButtons() {
+        const totalQ = testQuestions.length;
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+        const btnSubmit = document.getElementById('btn-submit');
+
+        btnPrev.disabled = currentQuestionIdx === 0;
+        
+        if (currentQuestionIdx === totalQ - 1) {
+            btnNext.classList.add('hidden');
+            btnSubmit.classList.remove('hidden');
+            btnSubmit.disabled = userAnswers[currentQuestionIdx] === undefined;
+            btnSubmit.className = btnSubmit.disabled 
+              ? "flex items-center gap-1.5 sm:gap-2 px-5 py-2 sm:px-8 sm:py-3 rounded-xl font-bold bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300 shadow-sm text-sm sm:text-base"
+              : "flex items-center gap-1.5 sm:gap-2 px-5 py-2 sm:px-8 sm:py-3 rounded-xl font-bold bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 transition-colors shadow-lg shadow-emerald-500/30 border border-emerald-400/50 text-sm sm:text-base";
+        } else {
+            btnNext.classList.remove('hidden');
+            btnSubmit.classList.add('hidden');
+            btnNext.disabled = userAnswers[currentQuestionIdx] === undefined;
+            btnNext.className = btnNext.disabled
+              ? "flex items-center gap-1 sm:gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-semibold bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300 shadow-sm text-sm sm:text-base"
+              : "flex items-center gap-1 sm:gap-2 px-4 py-2 sm:px-6 sm:py-3 rounded-xl font-bold text-white glossy-button hover:opacity-90 shadow-lg shadow-blue-500/30 transition-all text-sm sm:text-base";
+        }
+    }
+
+    function renderCurrentQuestion() {
+      const questionData = testQuestions[currentQuestionIdx];
+      const totalQ = testQuestions.length; // 34
+
+      document.getElementById('test-progress-text').textContent = `Soal ${currentQuestionIdx + 1} dari ${totalQ}`;
+      const progressPercent = ((currentQuestionIdx + 1) / totalQ) * 100;
+      document.getElementById('test-progress-bar').style.width = `${progressPercent}%`;
+
+      document.getElementById('question-text').textContent = `${currentQuestionIdx + 1}. ${questionData.q}`;
+
+      if (questionData.type === 'essay') {
+          document.getElementById('options-container').innerHTML = `
+            <textarea id="essay-answer" rows="4" 
+              class="w-full p-3 sm:p-5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white text-slate-800 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 outline-none resize-none transition-all placeholder-slate-400 shadow-inner text-sm sm:text-lg" 
+              placeholder="Ketik jawabanmu di sini secara detail..."
+              oninput="window.saveEssayAnswer(${currentQuestionIdx}, this.value)"
+            >${userAnswers[currentQuestionIdx] || ''}</textarea>
+          `;
+      } else {
+          document.getElementById('options-container').innerHTML = questionData.opts.map((opt, idx) => {
+            const isSelected = userAnswers[currentQuestionIdx] === idx;
+            const selectedClass = isSelected 
+              ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500 shadow-md' 
+              : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 shadow-sm hover:shadow-md';
+            
+            const isOptAlphabet = ["A", "B", "C", "D"].includes(opt) || questionData.opts.length === 4;
+            let prefix = '';
+            if(questionData.opts.length === 4 && activeTestId === 3) {
+                const alphabets = ['A.', 'B.', 'C.', 'D.'];
+                prefix = `<span class="font-bold mr-2 text-slate-400">${alphabets[idx]}</span>`;
+            }
+
+            const radioFill = isSelected 
+              ? '<div class="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>' 
+              : '';
+
+            return `
+              <div onclick="window.selectAnswer(${idx})" class="cursor-pointer p-3 sm:p-4 rounded-xl border-2 transition-all duration-200 flex items-center gap-3 sm:gap-4 ${selectedClass}">
+                <div class="w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 border-slate-300 flex items-center justify-center shrink-0 bg-white ${isSelected ? 'border-blue-500' : ''}">
+                  ${radioFill}
+                </div>
+                <span class="${isSelected ? 'font-bold text-blue-800' : 'font-semibold text-slate-600'} text-sm sm:text-base">
+                  ${prefix}${opt}
+                </span>
+              </div>
+            `;
+          }).join('');
+      }
+
+      updateNavigationButtons();
+      renderQuestionNavigator();
+      if(typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    window.selectAnswer = function(optIdx) {
+      userAnswers[currentQuestionIdx] = optIdx;
+      renderCurrentQuestion();
+      
+      if (currentQuestionIdx < testQuestions.length - 1) {
+        setTimeout(() => window.nextQuestion(), 300);
+      }
+    }
+
+    window.nextQuestion = function() {
+      if (currentQuestionIdx < testQuestions.length - 1) {
+        currentQuestionIdx++;
+        renderCurrentQuestion();
+      }
+    }
+
+    window.prevQuestion = function() {
+      if (currentQuestionIdx > 0) {
+        currentQuestionIdx--;
+        renderCurrentQuestion();
+      }
+    }
+
+    window.closeTest = function() {
+        if(confirm("Yakin ingin keluar dari tes ini?")) {
+            clearInterval(timerInterval);
+            testView.classList.add('hidden');
+            studentLoginView.classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+    }
+
+    window.submitTest = function() {
+        clearInterval(timerInterval);
+        testView.classList.add('hidden');
+        resultView.classList.remove('hidden');
+        window.scrollTo(0, 0);
+
+        const testInfo = testsData.find(t => t.id === activeTestId);
+        const detail = getTestResultDetails(activeTestId);
+
+        const nama = document.getElementById('stu-nama').value;
+        const nisn = document.getElementById('stu-nisn').value;
+        const kelas = document.getElementById('stu-kelas').value;
+
+        document.getElementById('res-nama-siswa').textContent = nama.split(' ')[0];
+        document.getElementById('res-nama-tes').textContent = testInfo.title;
+        document.getElementById('res-identitas').textContent = `${nisn} - Kelas ${kelas.toUpperCase()}`;
+        document.getElementById('res-skor').textContent = detail.persentase + '%';
+        document.getElementById('res-deskripsi').textContent = detail.deskripsiHasil;
+        document.getElementById('res-arah').textContent = detail.arahTujuan;
+
+        let essayText = "";
+        testQuestions.forEach((q, idx) => {
+            if(q.type === 'essay' && userAnswers[idx]) {
+                essayText += `Soal ${idx+1}: ${userAnswers[idx]}\n\n`;
+            }
+        });
+
+        let detailedAnswersList = [];
+        testQuestions.forEach((q, idx) => {
+            let ansStr = '';
+            if (q.type === 'essay') {
+                ansStr = userAnswers[idx] || 'Tidak dijawab';
+            } else {
+                if(userAnswers[idx] !== undefined) {
+                    const optAlpha = ["A.", "B.", "C.", "D."];
+                    const prefix = (q.opts.length === 4 && activeTestId === 3) ? optAlpha[userAnswers[idx]] + " " : "";
+                    ansStr = prefix + q.opts[userAnswers[idx]];
+                } else {
+                    ansStr = 'Tidak dijawab';
+                }
+            }
+            detailedAnswersList.push({ question: q.q, answer: ansStr });
+        });
+
+        const resultData = {
+            waktu: new Date().toLocaleString('id-ID'),
+            timestamp: Date.now(),
+            nama: nama,
+            nisn: nisn,
+            kelas: kelas.toUpperCase(),
+            jenisTes: testInfo.title,
+            skor: detail.persentase + '%',
+            hasil: detail.arahTujuan,
+            deskripsi: detail.deskripsiHasil,
+            tindakLanjut: detail.tindakLanjut,
+            saranPerbaikan: detail.saranPerbaikan,
+            rekomendasi: detail.rekomendasi,
+            essay: essayText.trim(),
+            detailedAnswers: detailedAnswersList
+        };
+
+        const results = JSON.parse(localStorage.getItem('minatPintarResults')) || [];
+        results.push(resultData);
+        localStorage.setItem('minatPintarResults', JSON.stringify(results));
+        
+        // Broadcast Event Lokal agar jika tab Admin terbuka, dia akan nge-refresh datanya otomatis.
+        window.dispatchEvent(new Event('storage'));
+        
+        // Panggil refreshData jika di browser/device yang sama (agar tab admin terupdate)
+        if(window.activeGuruNip) {
+            window.refreshData(true);
+        }
+    }
+
+    // --- LOGIKA HASIL DETAIL ---
+    function getTestResultDetails(testId) {
+        let persentase = 0;
+        let deskripsiHasil = '';
+        let arahTujuan = '';
+        let tindakLanjut = '';
+        let saranPerbaikan = '';
+        let rekomendasi = '';
+
+        if (testId === 1) { 
+           persentase = 88;
+           deskripsiHasil = "Siswa menunjukkan kecenderungan karakter Terbuka (Openness) dan Ramah (Ekstrovert). Memiliki tingkat empati yang tinggi, gampang bergaul dengan teman sebaya, serta tidak takut menghadapi lingkungan baru.";
+           arahTujuan = "Pengembangan kecerdasan interpersonal (sosial) dan jiwa kepemimpinan. Cocok untuk mengambil peran-peran atau karir yang membutuhkan komunikasi aktif, kerja sama tim (teamwork), dan pelayanan masyarakat.";
+           tindakLanjut = `
+              <li>Mendorong siswa untuk mendaftarkan diri pada kepengurusan OSIS, Pramuka, atau panitia inti acara sekolah.</li>
+              <li>Memberikan porsi peran sebagai pemimpin/ketua kelompok dalam sesi diskusi kelas untuk melatih rasa percaya diri.</li>
+              <li>Membimbing siswa agar berani mengekspresikan pendapat di depan umum secara terstruktur.</li>
+           `;
+           saranPerbaikan = `
+              <li>Perlu melatih kesabaran saat mendengarkan pendapat orang lain yang berbeda.</li>
+              <li>Belajar mengelola emosi agar tidak mudah terbawa suasana (baper) dalam situasi formal.</li>
+              <li>Berlatih membagi waktu antara kegiatan sosial dengan kewajiban belajar utama di rumah.</li>
+           `;
+           rekomendasi = "OSIS, Pramuka, Klub Debat, Public Speaking, Jurnalistik/Mading, Manajemen & Kepemimpinan.";
+        } else if (testId === 2) { 
+           persentase = 92;
+           deskripsiHasil = "Minat dominan siswa terpetakan dengan jelas di bidang IPS (Sosial Humaniora) dan dinamika sosial. Sangat cocok dengan materi yang berhubungan dengan hafalan, sejarah masa lalu, budaya, dan analisis masalah manusia.";
+           arahTujuan = "Fokus pada penguasaan ilmu Sosial, Bahasa, dan Humaniora. Sangat direkomendasikan untuk mengambil peminatan IPS/Bahasa saat memasuki jenjang SMA/Sederajat.";
+           tindakLanjut = `
+              <li>Arahkan siswa untuk menggali literatur/buku bacaan terkait ilmu sosial, novel sejarah, atau berita terkini untuk memperluas wawasannya.</li>
+              <li>Fasilitasi hobi menulisnya (cerpen, essay, opini) dengan memberikan ruang karya di mading sekolah atau lomba menulis.</li>
+              <li>Lakukan konseling lanjutan dengan guru BK di akhir semester untuk memastikan target/pilihan jenjang SMA yang sesuai.</li>
+           `;
+           saranPerbaikan = `
+              <li>Tingkatkan fokus pada mata pelajaran eksak (Matematika/IPA) agar nilai tetap seimbang secara keseluruhan.</li>
+              <li>Kurangi kebiasaan menunda pekerjaan atau tugas yang membutuhkan ketelitian tinggi.</li>
+              <li>Berlatih membuat jadwal harian yang lebih terstruktur dan mematuhinya.</li>
+           `;
+           rekomendasi = "Peminatan SMA (IPS / Bahasa / Soshum), Hubungan Internasional, Sosiologi, Hukum, Psikologi, Seni.";
+        } else if (testId === 3) { 
+           persentase = 85;
+           deskripsiHasil = "Kemampuan logika matematika dasar, berhitung, dan nalar kritis siswa berada di tingkat Sangat Baik (Superior). Mampu menangkap pola, mengolah angka, dan menyelesaikan teka-teki logika dengan waktu yang efisien.";
+           arahTujuan = "Memaksimalkan potensi daya analitis dan pemecahan masalah (problem solving) kompleks. Siswa sangat potensial untuk diarahkan ke rumpun ilmu Sains, Teknologi, Engineering, dan Matematika (STEM) atau IPA di masa depan.";
+           tindakLanjut = `
+              <li>Sediakan latihan soal-soal tingkat lanjut yang menuntut nalar tinggi (HOTS / Higher Order Thinking Skills).</li>
+              <li>Tawarkan dan persiapkan siswa untuk berpartisipasi dalam ajang kompetisi ilmiah tingkat daerah/nasional.</li>
+              <li>Berikan porsi lebih pada bimbingan akademis di mata pelajaran Matematika dan IPA.</li>
+           `;
+           saranPerbaikan = `
+              <li>Hindari sikap cepat puas dengan nilai akademik; terus kembangkan minat baca yang lebih luas.</li>
+              <li>Tingkatkan kemampuan komunikasi dan kerja sama tim (soft skills) agar bisa menyampaikan ide cemerlang dengan baik.</li>
+              <li>Belajar mengelola rasa frustrasi saat menghadapi kebuntuan dalam eksperimen atau tugas sulit.</li>
+           `;
+           rekomendasi = "Peminatan SMA (IPA / MIPA / STEM), Olimpiade Sains Nasional (OSN), Ekskul Robotik, Klub Catur, Kelompok Ilmiah Remaja (KIR).";
+        } else if (testId === 4) { 
+           persentase = 90;
+           deskripsiHasil = "Gaya belajar utama siswa adalah Visual dan Kinestetik. Lebih cepat menangkap dan mengingat pelajaran apabila menggunakan bantuan indera penglihatan (gambar/diagram) dan melakukan aktivitas gerakan fisik secara langsung.";
+           arahTujuan = "Menciptakan ekosistem belajar yang interaktif, penuh warna, dan tidak monoton. Penyerapan materi akan maksimal jika siswa tidak hanya duduk diam mendengarkan ceramah, melainkan diajak melihat dan mempraktikkan langsung teorinya.";
+           tindakLanjut = `
+              <li>Guru di kelas diharapkan lebih sering menyisipkan alat peraga fisik, video pendek, atau diagram alur saat mengajar materi yang rumit.</li>
+              <li>Sarankan kepada siswa untuk selalu merangkum catatan menggunakan metode Mind Mapping (peta konsep) dan pena/stabilo berbagai warna.</li>
+              <li>Berikan toleransi atas gerakan-gerakan kecil siswa di kelas (seperti mengetuk jari atau meregangkan badan) karena itulah cara otaknya mempertahankan fokus.</li>
+           `;
+           saranPerbaikan = `
+              <li>Kurangi hal-hal yang dapat mendistraksi mata (seperti notifikasi HP atau mainan) di atas meja belajar.</li>
+              <li>Berlatih duduk tenang dan melatih pernapasan secara bertahap untuk persiapan ujian berdurasi panjang.</li>
+              <li>Biasakan untuk membaca instruksi tertulis dengan lebih teliti dan tidak terburu-buru sebelum mulai bekerja.</li>
+           `;
+           rekomendasi = "Penerapan Metode Belajar Visual & Praktik Kinestetik (Mind Mapping, Flashcard, Eksperimen Langsung, Alat Peraga, Video Belajar).";
+        }
+
+        return { persentase, deskripsiHasil, arahTujuan, tindakLanjut, saranPerbaikan, rekomendasi };
+    }
+
+    // --- FUNGSI CETAK PDF (Siswa Side) ---
+    window.executePrint = function() {
+      const nama = document.getElementById('stu-nama').value;
+      const nisn = document.getElementById('stu-nisn').value;
+      const kelas = document.getElementById('stu-kelas').value;
+      const sekolah = document.getElementById('stu-sekolah').value;
+      const testInfo = testsData.find(t => t.id === activeTestId);
+      const detail = getTestResultDetails(activeTestId);
+      
+      const today = new Date();
+      const tanggalOtomatis = today.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+      
+      const namaGuruBK = window.activeGuruName || '......................................';
+      const nipGuruBK = window.activeGuruNip || '.......................';
+
+      let printHTML = `
+        <!DOCTYPE html>
+        <html lang="id">
+        <head>
+          <meta charset="UTF-8">
+          <title>Cetak Hasil Tes - ${nama}</title>
+          <script src="https://cdn.tailwindcss.com"><\/script>
+          <style>
+            @media print {
+              @page { margin: 0.8cm; } /* Margin kertas diperkecil agar lebih muat */
+              body { -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 12px; }
+              .avoid-break { page-break-inside: avoid; break-inside: avoid; }
+            }
+          </style>
+        </head>
+        <body class="bg-white text-slate-800 font-sans p-2 sm:p-4 max-w-4xl mx-auto">
+          <!-- KOP SURAT (Diperapat) -->
+          <div class="flex items-center border-b-4 border-slate-800 pb-3 mb-3 relative min-h-[110px]">
+            <div class="absolute left-0 top-0 bottom-0 flex items-center">
+               <img src="https://i.ibb.co.com/nsFP5n0X/Chat-GPT-Image-14-Mei-2026-19-35-48.png" style="width: 110px; height: 110px; object-fit: contain;" alt="Logo Aplikasi" fetchpriority="high">
+            </div>
+            <div class="w-full text-center px-[120px]">
+              <h1 class="text-2xl font-black uppercase tracking-widest leading-tight mb-1">Laporan Hasil Tes Minat Bakat</h1>
+              <h2 class="text-lg font-bold uppercase text-slate-700 tracking-wider leading-tight">${sekolah}</h2>
+            </div>
+          </div>
+          
+          <!-- IDENTITAS -->
+          <div class="flex justify-center items-center gap-4 text-xs text-slate-600 bg-slate-100 py-1.5 px-6 rounded-lg w-fit mx-auto mb-3 border border-slate-200">
+              <p>Nama: <span class="font-bold text-slate-800 uppercase">${nama}</span></p>
+              <div class="w-px h-4 bg-slate-300"></div>
+              <p>NISN: <span class="font-bold text-slate-800">${nisn}</span></p>
+              <div class="w-px h-4 bg-slate-300"></div>
+              <p>Kelas: <span class="font-bold text-slate-800">${kelas.toUpperCase()}</span></p>
+          </div>
+
+          <!-- HASIL -->
+          <div class="mb-2">
+            <h2 class="text-base font-bold text-blue-700 mb-2 pb-1 border-b-2 border-blue-200 uppercase">
+                Hasil ${testInfo.title}
+            </h2>
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+              <div class="mb-2 bg-white p-2.5 rounded-lg border border-slate-100">
+                  <h3 class="text-xs font-bold mb-1 text-slate-800">Ringkasan Karakter Anak:</h3>
+                  <p class="text-xs text-slate-600 leading-snug">${detail.deskripsiHasil}</p>
+              </div>
+
+              <div class="mb-2 bg-blue-50 p-2.5 rounded-lg border border-blue-100">
+                  <h3 class="text-xs font-bold mb-1 text-blue-800">Arah & Tujuan Hasil Tes:</h3>
+                  <p class="text-xs text-blue-700 leading-snug">${detail.arahTujuan}</p>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm relative overflow-hidden">
+                  <div class="absolute right-0 top-0 h-full w-1.5 bg-blue-500"></div>
+                  <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">Persentase Kecocokan</p>
+                  <div class="flex items-end gap-1.5 mt-0.5">
+                      <p class="text-xl font-black text-slate-800">${detail.persentase}%</p>
+                      <span class="text-[9px] font-semibold text-blue-600 mb-1">/ 100%</span>
+                  </div>
+                </div>
+                <div class="bg-white p-2 rounded-lg border border-slate-200 shadow-sm relative overflow-hidden">
+                  <div class="absolute right-0 top-0 h-full w-1.5 bg-emerald-500"></div>
+                  <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">Tingkat Minat</p>
+                  <p class="text-lg font-black text-emerald-600 mt-0.5">Sangat Tinggi</p>
+                </div>
+              </div>
+              
+              <div class="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
+                <div class="bg-amber-50 px-3 py-1.5 border-b border-amber-100">
+                    <p class="font-bold text-amber-900 text-xs">Langkah & Tindak Lanjut Selanjutnya:</p>
+                </div>
+                <div class="p-2.5">
+                    <ul class="list-disc list-outside text-xs text-slate-600 space-y-1 ml-4 leading-snug">
+                      ${detail.tindakLanjut}
+                    </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TANDA TANGAN (Dikunci dan dipadatkan) -->
+          <div class="mt-2 pt-2 border-t border-slate-200 avoid-break">
+            <table class="w-full text-center border-none text-xs">
+                <tr>
+                    <td class="w-1/2"></td>
+                    <td class="w-1/2 text-slate-800 font-medium pb-2">
+                        Diunduh pada: ${tanggalOtomatis}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="w-1/2 text-slate-800 pb-12">
+                        Mengetahui,<br>Siswa/Peserta Tes
+                    </td>
+                    <td class="w-1/2 text-slate-800 pb-12">
+                        <br>Guru Bimbingan Konseling
+                    </td>
+                </tr>
+                <tr>
+                    <td class="w-1/2">
+                        <span class="font-bold text-slate-800 border-b border-slate-800 inline-block px-2 min-w-[140px] uppercase">${nama}</span>
+                        <p class="text-[10px] text-slate-600 mt-1">NISN. ${nisn}</p>
+                    </td>
+                    <td class="w-1/2">
+                        <span class="font-bold text-slate-800 border-b border-slate-800 inline-block px-2 min-w-[140px] uppercase">${namaGuruBK}</span>
+                        <p class="text-[10px] text-slate-600 mt-1">NIP. ${nipGuruBK}</p>
+                    </td>
+                </tr>
+            </table>
+          </div>
+          <script>
+            window.onload = function() { setTimeout(function(){ window.print(); }, 500); }
+            window.onafterprint = function() { window.close(); }
+          <\/script>
+        </body>
+        </html>
+      `;
+
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(printHTML);
+      printWindow.document.close();
+    }
+  </script>
+</body>
+</html>
